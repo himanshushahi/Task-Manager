@@ -1,17 +1,19 @@
 "use client";
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
   DragDropContext,
   Droppable,
   Draggable,
   DropResult,
 } from "react-beautiful-dnd";
-import { FaPlus, FaTrash } from "react-icons/fa";
+import { FaEdit, FaEllipsisV, FaPlus, FaTrash } from "react-icons/fa";
 import RichTextEditor from "../../components/RichTextEditor";
 import { MdCancel } from "react-icons/md";
 import highlightJs from "highlight.js";
 import { BiTrashAlt } from "react-icons/bi";
 import toast from "react-hot-toast";
+import Spinner from "../../components/Spinner";
+import ConfirmationModal from "../../components/ConfirmationModal";
 
 interface Task {
   id: string;
@@ -31,6 +33,17 @@ const KanbanBoard: React.FC = () => {
 
   const [text, setText] = useState<string>("");
   const [addMode, setAddMode] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [confirmation, setConfirmation] = useState({
+    isOpen: false,
+    action: async () => {},
+  });
+
+  const editorRef = useRef<any | null>(null);
+
+  const handleReset = () => {
+    editorRef.current?.resetContent();
+  };
 
   const onDragEnd = async (result: DropResult) => {
     const { source, destination } = result;
@@ -118,6 +131,7 @@ const KanbanBoard: React.FC = () => {
     );
 
     try {
+      setIsLoading(true);
       const response = await fetch("/api/task", {
         method: "POST",
         headers: {},
@@ -132,6 +146,8 @@ const KanbanBoard: React.FC = () => {
       }
     } catch (error: any) {
       toast.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
     setText("");
     setAddMode("");
@@ -169,6 +185,7 @@ const KanbanBoard: React.FC = () => {
   };
 
   const deleteTask = async (columnId: string, taskId: string) => {
+    if (!columnId || !taskId) return;
     setColumns((prevColumns) =>
       prevColumns.map((column) =>
         column.id === columnId
@@ -259,6 +276,22 @@ const KanbanBoard: React.FC = () => {
     getInitialColumn();
   }, []);
 
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleCloseMenu = (e: Event) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    window.addEventListener("click", handleCloseMenu);
+
+    return () => {
+      window.removeEventListener("click", handleCloseMenu);
+    };
+  }, []);
+
   return (
     <div className="p-6 bg-gray-100 h-screen overflow-y-auto">
       <DragDropContext onDragEnd={onDragEnd}>
@@ -272,7 +305,14 @@ const KanbanBoard: React.FC = () => {
                 <div className="flex justify-between bg-purple-500 text-white p-3">
                   <h2 className="text-lg font-semibold ">{column.title}</h2>
                   <button
-                    onClick={() => deleteColumn(column.id)}
+                    onClick={() => {
+                      setConfirmation({
+                        isOpen: true,
+                        action: async () => {
+                          await deleteColumn(column.id);
+                        },
+                      });
+                    }}
                     className="hover:text-red-400 transition-colors"
                   >
                     <BiTrashAlt size={20} />
@@ -303,14 +343,45 @@ const KanbanBoard: React.FC = () => {
                                 dangerouslySetInnerHTML={{
                                   __html: task.content,
                                 }}
-                                className="mb-4"
+                                className="mb-4 w-full"
                               ></span>
-                              <button
-                                onClick={() => deleteTask(column.id, task.id)}
-                                className="text-white w-full rounded bg-red-500 flex items-center gap-2 border justify-center p-1 hover:bg-red-600"
-                              >
-                                Delete <FaTrash />
-                              </button>
+                                  
+                                  <div ref={menuRef} className="relative w-full flex justify-end">
+                                <button
+                                  onClick={() => setMenuOpen((prev) => !prev)}
+                                  className="text-gray-500 rounded flex items-center gap-2 border justify-center p-1"
+                                >
+                                  <FaEllipsisV />
+                                </button>
+
+                                <div
+                                  className={`absolute top-full min-w-28 right-0 mt-1 bg-white border rounded shadow-md transition-all origin-top-right z-10 ${
+                                    menuOpen
+                                      ? "scale-100 opacity-100 pointer-events-auto"
+                                      : "scale-95 opacity-0 pointer-events-none"
+                                  }`}
+                                >
+                                  <button
+                                    // onClick={handleEdit}
+                                    className="text-purple-500 w-full flex items-center gap-2 p-2 hover:bg-gray-200"
+                                  >
+                                    <FaEdit /> Edit
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      setConfirmation({
+                                        isOpen: true,
+                                        action: async () => {
+                                          await deleteTask(column.id, task.id);
+                                        },
+                                      })
+                                    }
+                                    className="text-red-500 w-full flex items-center gap-2 p-2 hover:bg-gray-200"
+                                  >
+                                    <FaTrash /> Delete
+                                  </button>
+                                </div>
+                              </div>
                             </div>
                           )}
                         </Draggable>
@@ -331,13 +402,11 @@ const KanbanBoard: React.FC = () => {
                           addMode === column.id
                             ? "opacity-100 pointer-events-auto"
                             : "opacity-0 pointer-events-none"
-                        } fixed top-0 transition-all left-0 z-10 w-screen h-screen flex justify-center items-center bg-opacity-50`}
+                        } fixed top-0 transition-all left-0 z-10 w-screen h-screen flex justify-center items-center lg:px-0 md:px-0 px-2 bg-opacity-50`}
                       >
                         <div
-                          className={`bg-white w-1/2 py-4 transition-transform rounded px-4 ${
-                            addMode === column.id
-                              ? "scale-100"
-                              : "scale-95"
+                          className={`bg-white lg:w-1/2 md:w-1/2 w-full  py-4 transition-transform rounded px-4 ${
+                            addMode === column.id ? "scale-100" : "scale-95"
                           }`}
                         >
                           <h2 className="text-center text-2xl font-semibold text-purple-600">
@@ -345,19 +414,29 @@ const KanbanBoard: React.FC = () => {
                           </h2>
                           <RichTextEditor
                             onChange={(content) => setText(content)}
+                            ref={editorRef}
                           />
                           <div className="flex justify-end gap-2 mt-2">
                             <button
                               className="flex p-2 gap-1 bg-red-500 hover:bg-red-700 transition-colors hover:text-gray-100 items-center text-sm rounded-sm text-white"
-                              onClick={() => setAddMode("")}
+                              onClick={() => {
+                                setAddMode("");
+                                handleReset();
+                              }}
                             >
                               <MdCancel /> Cancel
                             </button>
                             <button
-                              className="flex p-2 gap-1 bg-purple-500 hover:bg-purple-700 transition-colors hover:text-gray-100 items-center text-sm rounded-sm text-white"
+                              disabled={isLoading}
+                              className="flex p-2 disabled:bg-purple-300 gap-1 bg-purple-500 hover:bg-purple-700 transition-colors hover:text-gray-100 items-center text-sm rounded-sm text-white"
                               onClick={() => addTask(column.id)}
                             >
-                              <FaPlus /> Add
+                              {isLoading && <Spinner />}
+                              {!isLoading && (
+                                <>
+                                  <FaPlus /> Add
+                                </>
+                              )}
                             </button>
                           </div>
                         </div>
@@ -379,35 +458,35 @@ const KanbanBoard: React.FC = () => {
                 </button>
               )}
               {columnAddMode && (
-                <div className="p-4 bg-white rounded-lg shadow-md">
-                  <h2 className="text-xl font-serif text-purple-600 text-center font-semibold mb-4">
+                <div className="p-6 bg-white rounded-xl shadow-lg max-w-md mx-auto">
+                  <h2 className="text-xl font-bold font-[math] text-purple-600 text-center mb-6">
                     Add Column
                   </h2>
                   <input
                     type="text"
                     name="column"
-                    className="outline-none border border-gray-300 rounded p-2 w-full focus:border-purple-500 focus:ring-2 focus:ring-purple-300 transition duration-200"
+                    className="w-full px-4 py-3 rounded-sm bg-gray-100 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 outline-none transition duration-200 ease-in-out"
                     placeholder="Enter Column Title..."
                     value={newColumnTitle}
                     onChange={(e: ChangeEvent<HTMLInputElement>) =>
                       setNewColumnTitle(e.target.value)
                     }
                   />
-                  <div className="flex justify-end gap-3 mt-4">
+                  <div className="flex justify-end gap-4 mt-6">
                     <button
-                      className="flex p-2 gap-2 bg-red-500 hover:bg-red-600 items-center rounded text-white transition duration-200"
+                      className="px-4 py-2 rounded-sm text-sm text-gray-700 bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 transition duration-200 ease-in-out flex items-center"
                       onClick={() => {
                         setColumnAddMode(false);
                         setNewColumnTitle("");
                       }}
                     >
-                      <MdCancel size={20} /> Cancel
+                      <MdCancel className="mr-2" /> Cancel
                     </button>
                     <button
-                      className="flex p-2 gap-2 bg-purple-500 hover:bg-purple-600 items-center rounded text-white transition duration-200"
+                      className="px-4 py-2 rounded-sm  text-white text-sm bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200 ease-in-out flex items-center"
                       onClick={() => addColumn()}
                     >
-                      <FaPlus size={18} /> Add
+                      <FaPlus className="mr-2" /> Add
                     </button>
                   </div>
                 </div>
@@ -416,6 +495,17 @@ const KanbanBoard: React.FC = () => {
           </div>
         </div>
       </DragDropContext>
+      <ConfirmationModal
+        isOpen={confirmation.isOpen}
+        onClose={() =>
+          setConfirmation({ isOpen: false, action: async () => {} })
+        }
+        onConfirm={async () => {
+          await confirmation.action();
+          setConfirmation({ isOpen: false, action: async () => {} });
+        }}
+        message={"Are You Confirm Want To Delete?"}
+      />
     </div>
   );
 };

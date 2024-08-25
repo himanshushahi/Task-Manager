@@ -8,6 +8,7 @@ import { FaLock, FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 import Spinner from "../components/Spinner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useGlobalDispatch } from "../store/store";
 
 type auth = {
   email: string;
@@ -27,7 +28,7 @@ const LoginPage = () => {
   const [passwordType, setPasswordType] = useState<"password" | "text">(
     "password"
   );
-
+  const dispatch = useGlobalDispatch();
   const onSubmit: SubmitHandler<auth> = async (data, event: any) => {
     event.preventDefault(); // Prevent default form submission
     setIsLoading(true);
@@ -41,6 +42,8 @@ const LoginPage = () => {
         await response.json();
       if (resData.success) {
         toast.success(resData.message);
+
+        dispatch({ type: "SET_AUTHENTICATE", payload: true });
         router.push("/dashboard/tasks");
       } else {
         toast.error(resData.message);
@@ -53,7 +56,7 @@ const LoginPage = () => {
   };
   return (
     <div className="h-screen flex gap-2 items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8">
-      <div className="bg-white py-8 px-4 w-[30%] shadow sm:rounded-lg sm:px-10">
+      <div className="bg-white py-8 px-4 lg:w-[30%] md:w-[50%] w-full shadow sm:rounded-lg sm:px-10">
         <div className="flex items-center relative">
           <Link
             href={"/"}

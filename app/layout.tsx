@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Provider from "./Providers/Provider";
+import GlobalProvider from "./Providers/GlobalProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -39,7 +39,7 @@ export default function RootLayout({
         <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body className={inter.className}>
-        <Provider>{children}</Provider>
+        <GlobalProvider>{children}</GlobalProvider>
       </body>
     </html>
   );

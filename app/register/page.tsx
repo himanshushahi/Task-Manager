@@ -55,7 +55,7 @@ const RegisterPage = () => {
 
   return (
     <div className="h-screen flex gap-2 items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8">
-      <div className="bg-white py-8 px-4 w-[30%] shadow sm:rounded-lg sm:px-10">
+      <div className="bg-white py-8 px-4 lg:w-[30%] md:w-[50%] w-full shadow sm:rounded-lg sm:px-10">
         <div className="flex items-center relative">
           <Link
             href={"/"}
@@ -72,7 +72,7 @@ const RegisterPage = () => {
           />
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="rounded-md shadow-sm -space-y-px">
+          <div className="rounded-md -space-y-px">
             <div>
               <label htmlFor="name" className="sr-only">
                 Name
@@ -82,7 +82,7 @@ const RegisterPage = () => {
                 type="text"
                 {...register("name", { required: "Name is required" })}
                 autoComplete="name"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
                 placeholder="Name"
               />
             </div>
@@ -101,7 +101,7 @@ const RegisterPage = () => {
                   },
                 })}
                 autoComplete="email"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
               />
             </div>
@@ -125,7 +125,7 @@ const RegisterPage = () => {
                 })}
                 type={passwordType}
                 autoComplete="new-password"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500  sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-purple-500 focus:border-purple-500  sm:text-sm"
                 placeholder="Password"
               />
               <button
@@ -166,7 +166,7 @@ const RegisterPage = () => {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
             >
               <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                 <FaUser

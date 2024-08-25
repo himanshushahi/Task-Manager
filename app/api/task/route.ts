@@ -82,7 +82,9 @@ export async function DELETE(req: NextRequest) {
     if (!columnId) throw new Error("Column id is required!");
     if (!taskId) throw new Error("Task id is Required!");
 
-    const column = await Column.findOne({ id: columnId });
+    console.log(columnId)
+
+    const column = await Column.findOne({ id: columnId,createdBy:_id });
 
     if (!column) throw new Error("Column not found with given id");
 
