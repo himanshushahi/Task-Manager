@@ -11,6 +11,7 @@ import { RiLogoutBoxLine } from "react-icons/ri";
 import { IoIosArrowDown } from "react-icons/io";
 import ConfirmationModal from "../components/ConfirmationModal";
 import { IoStatsChart } from "react-icons/io5";
+import AddWorkSpaceModal from "../components/AddWorkSpaceModal";
 
 function Sidebar() {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
@@ -39,31 +40,7 @@ function Sidebar() {
 
   const [addMode, setAddMode] = useState<boolean>(false);
 
-  const handleAddingWorkSpace = async (name: string) => {
-    try {
-      const response = await fetch("/api/workspace", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        toast.success(data.message);
-        dispatch({ type: "ADD_WORKSPACE", payload: data.workspace });
-        router.push(`/dashboard/workspace/${data.workspace._id}`);
-      } else {
-        throw new Error(data.message);
-      }
-    } catch (error: any) {
-      toast.error(error.message);
-    } finally {
-      setConfirmation({ isOpen: false, action: async () => {} });
-    }
-  };
+  
 
   const [confirmation, setConfirmation] = useState({
     isOpen: false,
@@ -90,6 +67,8 @@ function Sidebar() {
       }
     } catch (error: any) {
       toast.error(error.message);
+    }finally{
+      setConfirmation({isOpen:false,action:async()=>{}})
     }
   };
 
@@ -98,12 +77,10 @@ function Sidebar() {
   return (
     <>
       {/* Mobile overlay */}
-      {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className={`fixed ${sidebarOpen?'opacity-100 pointer-events-auto':'opacity-0 pointer-events-auto'} transition-opacity inset-0 bg-black bg-opacity-50 z-40 lg:hidden`}
           onClick={() => setSidebarOpen(false)}
         ></div>
-      )}
 
       {/* Sidebar */}
       <aside
@@ -124,7 +101,7 @@ function Sidebar() {
             <MdSpaceDashboard size={24} />
           </span>
           <span
-            className={`ml-4 whitespace-nowrap overflow-hidden transition-all duration-300 ${
+            className={`ml-4 font-semibold whitespace-nowrap overflow-hidden transition-all duration-300 ${
               sidebarOpen ? "opacity-100 w-auto" : "opacity-0 w-0"
             }`}
           >
@@ -143,7 +120,7 @@ function Sidebar() {
               <IoStatsChart />
             </span>
             <span
-              className={`ml-4 font-semibold whitespace-nowrap overflow-hidden transition-all duration-300 ${
+              className={`ml-4 whitespace-nowrap overflow-hidden transition-all duration-300 ${
                 sidebarOpen ? "opacity-100 w-auto" : "opacity-0 w-0"
               }`}
             >
@@ -180,7 +157,7 @@ function Sidebar() {
           className="flex items-center gap-4 p-4 hover:bg-purple-600 rounded-lg transition-colors duration-300 text-white"
         >
           {isLoading ? (
-            <Spinner />
+            <button className="flex w-full justify-center items-center"><Spinner /></button>
           ) : (
             <>
               <span className="text-xl">
@@ -197,12 +174,9 @@ function Sidebar() {
           )}
         </button>
       </aside>
-      <Modal
+      <AddWorkSpaceModal
         isOpen={addMode}
         onClose={() => setAddMode(false)}
-        onAdd={function (name: string): void {
-          handleAddingWorkSpace(name);
-        }}
       />
       <ConfirmationModal
         isOpen={confirmation.isOpen}
@@ -255,7 +229,7 @@ const NavLink = memo(function ({
         <div className="flex items-center w-full gap-4">
           <span className="text-xl">{icon}</span>
           <span
-            className={`font-semibold whitespace-nowrap overflow-hidden transition-all duration-300 ${
+            className={`whitespace-nowrap overflow-hidden transition-all duration-300 ${
               open ? "opacity-100 w-auto" : "opacity-0 w-0"
             }`}
           >
@@ -306,70 +280,5 @@ const NavLink = memo(function ({
 });
 
 NavLink.displayName = 'NavLink'
-
-interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onAdd: (name: string) => void;
-}
-
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, onAdd }) => {
-  const [name, setName] = useState("");
-
-  const handleAdd = () => {
-    onAdd(name);
-    setName("");
-    onClose();
-  };
-
-  const handleCancel = () => {
-    onClose();
-    setName("");
-  };
-
-  return (
-    <div
-      className={`${
-        isOpen
-          ? "opacity-100 pointer-events-auto"
-          : "opacity-0 pointer-events-none"
-      } transition-opacity fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50`}
-    >
-      <div
-        className={`${
-          isOpen ? "scale-100" : "scale-95"
-        } transition-transform p-6 bg-white rounded-xl shadow-lg max-w-md w-full mx-auto`}
-      >
-        <h2 className="text-xl font-bold font-[math] text-purple-600 text-center mb-6">
-          Add WorkSpace
-        </h2>
-        <input
-          type="text"
-          name="name"
-          className="w-full px-4 py-3 rounded-sm bg-gray-100 border-transparent focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 outline-none transition duration-200 ease-in-out"
-          placeholder="Enter Name..."
-          value={name}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setName(e.target.value)
-          }
-        />
-        <div className="flex justify-end gap-4 mt-6">
-          <button
-            className="px-4 py-2 rounded-sm text-sm text-gray-700 bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 transition duration-200 ease-in-out flex items-center"
-            onClick={handleCancel}
-          >
-            <MdCancel className="mr-2" /> Cancel
-          </button>
-          <button
-            className="px-4 py-2 rounded-sm  text-white text-sm bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-600 transition duration-200 ease-in-out flex items-center"
-            onClick={handleAdd}
-          >
-            <FaPlus className="mr-2" /> Add
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 export default Sidebar;

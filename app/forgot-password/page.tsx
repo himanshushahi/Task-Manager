@@ -169,7 +169,7 @@ function Forgot() {
     <div className="min-h-screen bg-gray-100 flex justify-center items-center py-12 sm:px-6 lg:px-8">
       <div className="bg-white py-8 px-4 sm:px-10 lg:w-[30%] md:w-[50%] w-full shadow sm:rounded-lg lg:mx-0 mx-4">
         <div className="sm:mx-auto mb-4 sm:w-full sm:max-w-md">
-          <h2 className="text-center text-2xl font-extrabold text-purple-600">
+          <h2 className="text-center lg:text-2xl text-xl font-extrabold text-purple-600">
             Forgot Password
           </h2>
         </div>

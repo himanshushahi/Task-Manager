@@ -2,13 +2,15 @@ import React, { useState, ChangeEvent } from "react";
 import { FaPlus } from "react-icons/fa";
 import { MdCancel } from "react-icons/md";
 
-const AddColumnModal: React.FC<{onAdd:(value:string)=>void}> = ({onAdd}) => {
+const AddColumnModal: React.FC<{ onAdd: (value: string) => void }> = ({
+  onAdd,
+}) => {
   const [columnAddMode, setColumnAddMode] = useState<boolean>(false);
   const [newColumnTitle, setNewColumnTitle] = useState<string>("");
 
   const addColumn = () => {
     // Add column logic here
-    onAdd(newColumnTitle)
+    onAdd(newColumnTitle);
     setColumnAddMode(false);
     setNewColumnTitle("");
   };
@@ -22,8 +24,18 @@ const AddColumnModal: React.FC<{onAdd:(value:string)=>void}> = ({onAdd}) => {
         <FaPlus className="mr-2" /> Add Column
       </button>
 
-      <div className={`${columnAddMode?'opacity-100 pointer-events-auto':'opacity-0 pointer-events-none'} transition-opacity fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50`}>
-        <div className={`${columnAddMode?'scale-100':'scale-95'} transition-transform p-6 bg-white rounded-xl shadow-lg max-w-md w-full mx-auto`}>
+      <div
+        className={`${
+          columnAddMode
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        } transition-opacity fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50`}
+      >
+        <div
+          className={`${
+            columnAddMode ? "scale-100" : "scale-95"
+          } transition-transform p-6 bg-white rounded-xl shadow-lg max-w-md w-[95%] mx-auto`}
+        >
           <h2 className="text-xl font-bold font-[math] text-purple-600 text-center mb-6">
             Add Column
           </h2>

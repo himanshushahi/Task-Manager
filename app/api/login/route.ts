@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
     await connectDb();
 
-    const user = await userModel.findOne({ email });
+    const user = await userModel.findOne({ email:{$regex:new RegExp(email,'i')} });
 
     if (!user) throw new Error("Email Or Password Incorrect!");
 

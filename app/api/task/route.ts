@@ -8,8 +8,10 @@ export async function POST(req: NextRequest) {
   const {
     columnId,
     task,
+    workSpaceId,
   }: {
     columnId: string;
+    workSpaceId: string;
     task: {
       id: string;
       content: string;
@@ -28,9 +30,14 @@ export async function POST(req: NextRequest) {
 
     if (!columnId) throw new Error("Column Field Is Missing!");
 
+    if (!workSpaceId) throw new Error("Workspace Id is required!");
+
     await connectDb();
 
-    const column = await Column.findOne({ id: columnId });
+    const column = await Column.findOne({
+      id: columnId,
+      workSpace: workSpaceId,
+    });
 
     if (column) {
       column.tasks.push(task); // Directly push the task into the tasks array
@@ -52,10 +59,8 @@ export async function POST(req: NextRequest) {
   }
 }
 
-
-
 export async function DELETE(req: NextRequest) {
-  const { columnId, taskId } = await req.json();
+  const { columnId, taskId, workSpaceId } = await req.json();
 
   try {
     const { _id } = await verifyToken(
@@ -66,14 +71,19 @@ export async function DELETE(req: NextRequest) {
     await connectDb();
     if (!columnId) throw new Error("Column id is required!");
     if (!taskId) throw new Error("Task id is Required!");
+    if (!workSpaceId) throw new Error("Workspace_Id is Required!");
 
-    console.log(columnId)
-
-    const column = await Column.findOne({ id: columnId,createdBy:_id });
+    const column = await Column.findOne({
+      id: columnId,
+      createdBy: _id,
+      workSpace: workSpaceId,
+    });
 
     if (!column) throw new Error("Column not found with given id");
 
-    const index = column.tasks.findIndex((task: { id: any; }) => task.id === taskId);
+    const index = column.tasks.findIndex(
+      (task: { id: any }) => task.id === taskId
+    );
     if (index !== -1) {
       column.tasks.splice(index, 1);
     }

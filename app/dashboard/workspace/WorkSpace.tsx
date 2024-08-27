@@ -110,6 +110,7 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
           sourceIndex: source.index,
           destinationIndex: destination.index,
           isSameColumn: source.droppableId === destination.droppableId,
+          workSpaceId,
         }),
       });
 
@@ -139,8 +140,10 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
       setIsLoading(true);
       const response = await fetch("/api/task", {
         method: "POST",
-        headers: {},
-        body: JSON.stringify({ columnId, task: newTask }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ workSpaceId, columnId, task: newTask }),
       });
       const data = await response.json();
 
@@ -210,7 +213,7 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ columnId, taskId }),
+        body: JSON.stringify({ columnId, taskId, workSpaceId }),
       });
 
       const data = await response.json();
@@ -234,6 +237,8 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
       const response = await fetch(`/api/column/${columnId}`, {
         method: "DELETE",
         credentials: "include",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({workSpaceId})
       });
       const data = await response.json();
 
@@ -281,8 +286,8 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
 
   return (
     <div className="p-6 bg-gray-100 h-screen overflow-y-auto">
-      <div className="flex mb-6">
-        <div className="flex justify-center w-full items-center">
+      <div className="flex mb-6 ">
+        <div className="flex justify-center flex-1 items-center">
           <h2
             id="header"
             className="lg:text-2xl text-xl text-purple-600 text-center "

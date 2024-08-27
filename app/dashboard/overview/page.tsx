@@ -6,12 +6,14 @@ import CollaboratorForm from "./CollaboratorForm";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import AddWorkSpaceModal from "../../components/AddWorkSpaceModal";
 
 function Dashboard() {
   const { workSpaces, user } = useGlobalState(); // Assuming user information is available in global state
 
   const [completedTasksLength, setCompletedTasksLength] = useState<number>(0);
   const [allTaskLength, setAllTaskLength] = useState<number>(0);
+  const [addMode,setAddMode] = useState<boolean>(false)
 
   useEffect(() => {
     const getCompletedTasks = async () => {
@@ -35,23 +37,25 @@ function Dashboard() {
         Overview
       </h1>
       {/* User Information */}
-      <div className="bg-gradient-to-r from-purple-500 to-indigo-600 shadow-lg rounded-xl p-6 mb-6">
-        <div className="flex items-center">
-          <div className="relative">
+      <div className="bg-gradient-to-r from-purple-500 to-indigo-600 shadow-lg rounded-xl p-4 sm:p-6 mb-6">
+        <div className="flex flex-col sm:flex-row items-center">
+          <div className="relative w-20 h-20 mb-4 sm:mb-0">
             <Image
               width={300}
               height={300}
               src={user?.avatar || "/dummy-avatar.jpeg"}
               alt="User Avatar"
-              className="w-24 h-24 rounded-full border-4 border-white shadow-md"
+              className="w-full h-full rounded-full object-cover border-4 border-white shadow-md"
             />
             <div className="absolute bottom-0 right-0 bg-green-400 rounded-full w-5 h-5 border-2 border-white"></div>
           </div>
-          <div className="ml-6">
-            <h2 className="text-2xl font-bold mb-2 text-white">{user?.name}</h2>
-            <div className="flex items-center text-purple-200 mb-1">
+          <div className="sm:ml-6 text-center sm:text-left">
+            <h2 className="text-xl sm:text-2xl font-bold mb-2 text-white">
+              {user?.name}
+            </h2>
+            <div className="flex items-center justify-center sm:justify-start text-purple-200">
               <FaEnvelope className="mr-2" />
-              <p>{user?.email}</p>
+              <p className="text-sm sm:text-base break-all">{user?.email}</p>
             </div>
           </div>
         </div>
@@ -161,9 +165,10 @@ function Dashboard() {
             </div>
           ))}
         </div>
-        <button className="mt-6 w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-300 ease-in-out flex items-center justify-center">
+        <button onClick={()=>setAddMode(true)} className="mt-6 w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-300 ease-in-out flex items-center justify-center">
           <FaFolder className="mr-2" /> Create New Workspace
         </button>
+        <AddWorkSpaceModal isOpen={addMode} onClose={()=>setAddMode(false)}/>
       </div>
       {/* Add Collaborator Section */}
       <CollaboratorForm />

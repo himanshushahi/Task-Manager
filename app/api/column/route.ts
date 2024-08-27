@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       title: title,
       task: [],
       createdBy: _id,
-      workSpace:workSpaceId,
+      workSpace: workSpaceId,
     });
 
     return NextResponse.json({
@@ -44,6 +44,7 @@ export async function PUT(req: NextRequest) {
     sourceIndex,
     destinationIndex,
     isSameColumn,
+    workSpaceId,
   } = await req.json();
 
   try {
@@ -52,8 +53,13 @@ export async function PUT(req: NextRequest) {
     if (!token) throw new Error("UnAuthorize User");
 
     const { _id } = await verifyToken(token);
+
     // Find the source column
-    const sourceColumn = await Column.findOne({ id: sourceId, createdBy: _id });
+    const sourceColumn = await Column.findOne({
+      id: sourceId,
+      createdBy: _id,
+      workSpace: workSpaceId,
+    });
     if (!sourceColumn) throw new Error("Source column not found");
 
     //if not same column;
@@ -62,6 +68,7 @@ export async function PUT(req: NextRequest) {
       const destColumn = await Column.findOne({
         id: destinationId,
         createdBy: _id,
+        workSpace: workSpaceId,
       });
       if (!destColumn) throw new Error("Destination column not found");
 

@@ -35,7 +35,7 @@ const RegisterPage = () => {
     "password"
   );
   const [otp, setOtp] = useState("");
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(2);
   const [storedEmail, setStoredEmail] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [otpLoading, setOtpLoading] = useState<boolean>(false);
@@ -208,63 +208,68 @@ const RegisterPage = () => {
                 name="name"
                 value={user.name}
                 onChange={handleChange}
-                className="appearance-none rounded w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
+                className="appearance-none rounded-b w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
                 placeholder="Name"
               />
             </div>
 
-            <div className="mb-4 flex items-center">
+            <div className="mb-4">
               <label htmlFor="email-address" className="sr-only">
                 Email address
               </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                value={user.email}
-                onChange={handleChange}
-                disabled={step === 2 || step === 3}
-                className="appearance-none flex-1 rounded-l  px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
-                placeholder="Email address"
-              />
-              {step === 1 && (
-                <button
-                  type="button"
-                  disabled={otpLoading}
-                  className="px-3 py-2 bg-purple-600 text-white rounded-r-md border border-purple-600"
-                  onClick={sendOTPHandler}
-                >
-                  {otpLoading ? <Spinner /> : "Send OTP"}
-                </button>
-              )}
-              {step === 3 && (
-                <span className="px-3 py-2 bg-green-600 text-white rounded-r-md">
-                  <FaCheckSquare />
-                </span>
-              )}
+              <div className="flex flex-col sm:flex-row">
+                <input
+                  id="email-address"
+                  name="email"
+                  type="email"
+                  value={user.email}
+                  onChange={handleChange}
+                  disabled={step === 2 || step === 3}
+                  className="appearance-none w-full sm:flex-1 rounded-b px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600 text-sm"
+                  placeholder="Email address"
+                />
+                {step === 1 && (
+                  <button
+                    type="button"
+                    disabled={otpLoading}
+                    className="mt-2 sm:mt-0 w-full flex justify-center sm:w-auto px-3 py-2 bg-purple-600 text-white rounded-b sm:rounded-r sm:rounded-b-none border border-purple-600 hover:bg-purple-700 transition-colors duration-200 ease-in-out"
+                    onClick={sendOTPHandler}
+                  >
+                    {otpLoading ? <Spinner /> : "Send OTP"}
+                  </button>
+                )}
+                {step === 3 && (
+                  <span className="mt-2 sm:mt-0 w-full sm:w-auto flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-b sm:rounded-r sm:rounded-b-none">
+                    <FaCheckSquare className="mr-2" />
+                    Verified
+                  </span>
+                )}
+              </div>
             </div>
 
             {step === 2 && (
-              <div className="mb-4 flex items-center">
+              <div className="mb-4">
                 <label htmlFor="otp" className="sr-only">
                   OTP
                 </label>
-                <input
-                  id="otp"
-                  type="text"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  className="appearance-none flex-1 rounded-l-md px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
-                  placeholder="OTP"
-                />
-                <button
-                  type="button"
-                  disabled={otpLoading}
-                  className="px-3 py-2 bg-purple-600 text-white rounded-r-md border border-purple-600"
-                  onClick={handleVerifyOtp}
-                >
-                  {otpLoading ? <Spinner /> : "Verify OTP"}
-                </button>
+                <div className="flex flex-col sm:flex-row">
+                  <input
+                    id="otp"
+                    type="text"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="appearance-none w-full sm:flex-1 rounded-t sm:rounded-l sm:rounded-t-none px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600 text-sm"
+                    placeholder="Enter OTP"
+                  />
+                  <button
+                    type="button"
+                    disabled={otpLoading}
+                    className="mt-2 sm:mt-0 w-full flex justify-center sm:w-auto px-3 py-2 bg-purple-600 text-white rounded-b sm:rounded-r sm:rounded-b-none border border-purple-600 hover:bg-purple-700 transition-colors duration-200 ease-in-out disabled:bg-purple-400 disabled:cursor-not-allowed"
+                    onClick={handleVerifyOtp}
+                  >
+                    {otpLoading ? <Spinner /> : "Verify OTP"}
+                  </button>
+                </div>
               </div>
             )}
 
@@ -310,7 +315,7 @@ const RegisterPage = () => {
                 onChange={handleChange}
                 type={passwordType}
                 autoComplete="new-password"
-                className="appearance-none rounded w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
+                className="appearance-none rounded-b w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
                 placeholder="Password"
               />
               <button

@@ -5,6 +5,7 @@ import Image from "next/image";
 import toast from "react-hot-toast";
 import Spinner from "./Spinner";
 import { FaTimes, FaUserPlus } from "react-icons/fa";
+import { BsThreeDots } from "react-icons/bs";
 
 function WorkSpaceMembers({ _id }: { _id: string }) {
   const { workSpaces } = useGlobalState();
@@ -29,13 +30,19 @@ function WorkSpaceMembers({ _id }: { _id: string }) {
       {filterdWorkSpace.members.length < 1 && (
         <button
           onClick={() => setShowModal((prev) => (prev ? false : true))}
-          className="text-white flex gap-1 items-center py-2 px-3 bg-purple-600 rounded"
+          className="text-white lg:flex md:flex  hidden gap-1 items-center py-2 px-3 bg-purple-600 rounded"
         >
           <FiUserPlus /> Add Members
         </button>
       )}
+        <button
+          className="lg:hidden md:hidden flex items-center"
+          onClick={() => setShowModal(true)}
+        >
+          <BsThreeDots size={20}/>
+        </button>
       <div
-        className="flex cursor-pointer"
+        className="cursor-pointer lg:flex md:flex hidden "
         onClick={() => setShowModal((prev) => (prev ? false : true))}
       >
         {filterdWorkSpace.members.length > 6
@@ -124,7 +131,7 @@ const MembersModal = ({
         setSearchResults([]);
       }
     },
-    [searchUsers,selectedUsers]
+    [searchUsers, selectedUsers]
   );
 
   const addUser = useCallback(
@@ -179,7 +186,7 @@ const MembersModal = ({
         setIsAddingMembers(false);
       }
     },
-    [selectedUsers,dispatch,workSpaceId]
+    [selectedUsers, dispatch, workSpaceId]
   );
 
   const deleteSelected = (userId: string) => {

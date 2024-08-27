@@ -1,6 +1,7 @@
-import React from "react";
+import React, { Suspense } from "react";
 import WorkSpace from "../WorkSpace";
 import { cookies } from "next/headers";
+import Spinner from "../../../components/Spinner";
 
 const getInitialColumn = async (
   workSpaceId: string,
@@ -33,7 +34,7 @@ type paramsType = {
 async function Page({params}:{params:paramsType}) {
   const token = cookies().get(process.env.COOKIE_NAME as string)?.value;
   const {columns,name} = await getInitialColumn(params.id, token);
-  return <WorkSpace name={name} workSpaceId={params.id} _columns={columns} />;
+  return <Suspense fallback={<div className="h-screen flex items-center w-full justify-center bg-gray-100"><Spinner/></div>}><WorkSpace name={name} workSpaceId={params.id} _columns={columns} /></Suspense>;
 }
 
 export default Page;
