@@ -8,7 +8,7 @@ import { FaLock, FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 import Spinner from "../components/Spinner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useGlobalDispatch } from "../store/store";
+import { useGlobalDispatch, userType } from "../store/store";
 
 type auth = {
   email: string;
@@ -38,13 +38,13 @@ const LoginPage = () => {
         headers: { Content_Type: "application/json" },
         body: JSON.stringify(data),
       });
-      const resData: { success: boolean; message: string } =
+      const resData: { success: boolean; message: string; user: userType } =
         await response.json();
       if (resData.success) {
         toast.success(resData.message);
 
-        dispatch({ type: "SET_AUTHENTICATE", payload: true });
-        router.push("/dashboard/tasks");
+        dispatch({ type: "SET_USER", payload: resData.user });
+        router.push("/dashboard/overview");
       } else {
         toast.error(resData.message);
       }
@@ -60,7 +60,7 @@ const LoginPage = () => {
         <div className="flex items-center relative">
           <Link
             href={"/"}
-            className="absolute left-0 top-4 text-purple-500 hover:bg-gray-400 transition-colors font-bold rounded-full p-1 bg-gray-300"
+            className="absolute left-0 top-[20px] text-purple-600 hover:bg-gray-200 transition-colors font-bold rounded-full p-2"
           >
             <BsArrowLeft size={25} strokeWidth={1} />
           </Link>
@@ -145,7 +145,7 @@ const LoginPage = () => {
             <div className="text-sm">
               <Link
                 href="/forgot-password"
-                className="font-medium text-purple-600 hover:text-purple-500"
+                className="font-medium text-purple-600 hover:text-purple-600"
               >
                 Forgot your password?
               </Link>
@@ -154,7 +154,7 @@ const LoginPage = () => {
             <div className="text-sm">
               <Link
                 href="/register"
-                className="font-medium text-purple-600 hover:text-purple-500"
+                className="font-medium text-purple-600 hover:text-purple-600"
               >
                 Register?
               </Link>
@@ -168,7 +168,7 @@ const LoginPage = () => {
             >
               <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                 <FaLock
-                  className="h-5 w-5 text-purple-500 group-hover:text-purple-400"
+                  className="h-5 w-5 text-purple-600 group-hover:text-purple-400"
                   aria-hidden="true"
                 />
               </span>

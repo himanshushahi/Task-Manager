@@ -6,7 +6,7 @@ import Link from "next/link";
 
 function Navbar() {
   return (
-    <nav className="bg-purple-500 text-white py-4 z-10 sticky top-0">
+    <nav className="bg-purple-600 text-white py-4 z-10 sticky top-0">
       <div className="lg:px-8 px-2 h-[7vh] flex justify-between items-center">
         <Link href={"/"}>
           <Image

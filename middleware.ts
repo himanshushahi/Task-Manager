@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
   ) {
     const { _id } = await verifyToken(token);
     if (_id) {
-      return NextResponse.redirect(new URL("/dashboard/tasks", request.url));
+      return NextResponse.redirect(new URL("/dashboard/overview", request.url));
     }
   }
 }

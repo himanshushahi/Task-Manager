@@ -8,7 +8,7 @@ function HomePage() {
   return (
     <div>
       {/* Hero Section */}
-      <div className="bg-purple-500 text-white w-full py-8 sm:py-10 md:py-12 lg:py-16">
+      <div className="bg-purple-600 text-white w-full py-8 sm:py-10 md:py-12 lg:py-16">
         <div className="w-full md:w-[80%] lg:w-[80%] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-4 lg:gap-12">
             <div className="text-center lg:text-left lg:w-1/2">
@@ -36,7 +36,7 @@ function HomePage() {
       {/* Services Section */}
       <div className="py-10 bg-gray-100">
         <div className="w-full md:w-[80%] lg:w-[80%] mx-auto text-center px-2 lg:px-0">
-          <h2 className="lg:text-3xl md:tex-2xl text-xl font-bold mb-8 text-purple-500">
+          <h2 className="lg:text-3xl md:tex-2xl text-xl font-bold mb-8 text-purple-600">
             Our Services
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -70,7 +70,7 @@ function HomePage() {
       {/* FAQ Section */}
       <div className="py-10 bg-gray-100">
         <div className="w-full md:w-[80%] lg:w-[80%] mx-auto px-2 lg:px-0">
-          <h2 className="lg:text-3xl md:text-2xl text-xl text-center font-bold mb-8 text-purple-500">
+          <h2 className="lg:text-3xl md:text-2xl text-xl text-center font-bold mb-8 text-purple-600">
             Frequently Asked Questions
           </h2>
           <div className="flex flex-col gap-4">
@@ -87,7 +87,7 @@ function HomePage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-purple-500 text-white py-8">
+      <footer className="bg-purple-600 text-white py-8">
         <div className="container mx-auto text-center">
           <p>&copy; 2024 Your Task Manager. All rights reserved.</p>
         </div>

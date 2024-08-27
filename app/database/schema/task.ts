@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import userModel from "./user";
+import WorkSpace from "./workspace";
 const { Schema } = mongoose;
 
 const TaskSchema = new Schema({
@@ -26,6 +27,10 @@ const ColumnSchema = new Schema({
   createdBy: {
     type: mongoose.Schema.ObjectId,
     ref: userModel,
+  },
+  workSpace: {
+    type: mongoose.Schema.ObjectId,
+    ref: WorkSpace,
   },
 });
 

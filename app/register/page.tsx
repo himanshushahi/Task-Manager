@@ -1,45 +1,85 @@
 "use client";
 import Link from "next/link";
 import { BsArrowLeft } from "react-icons/bs";
-import { FaEye, FaEyeSlash, FaUser } from "react-icons/fa";
-import { useForm, SubmitHandler } from "react-hook-form";
+import {
+  FaCheckSquare,
+  FaEye,
+  FaEyeSlash,
+  FaTrashAlt,
+  FaUser,
+} from "react-icons/fa";
 import toast from "react-hot-toast";
-import { useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import Spinner from "../components/Spinner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { FaCircleInfo } from "react-icons/fa6";
 
 type user = {
   name: string;
   email: string;
   password: string;
+  avatar: string | null;
 };
 
 const RegisterPage = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<user>();
-
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [user, setUser] = useState<user>({
+    name: "",
+    email: "",
+    avatar: "",
+    password: "",
+  });
   const [passwordType, setPasswordType] = useState<"text" | "password">(
     "password"
   );
-  const router = useRouter();
+  const [otp, setOtp] = useState("");
+  const [step, setStep] = useState(1);
+  const [storedEmail, setStoredEmail] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [otpLoading, setOtpLoading] = useState<boolean>(false);
+  const [timer, setTimer] = useState(120);
 
-  const onSubmit: SubmitHandler<user> = async (data, event: any) => {
-    event.preventDefault(); // Prevent default form submission
-    setIsLoading(true);
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setUser((prev) => ({ ...prev, [name]: value }));
+    setError("");
+  };
+
+  const onSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!user.name) {
+      setError("Please enter your name");
+      return;
+    }
+    if (!user.email) {
+      setError("Please enter your email");
+      return;
+    }
+    if (!user.password) {
+      setError("Please enter your password");
+      return;
+    }
+    if (step !== 3) {
+      setError("Verify the email first.");
+      return;
+    }
+
     try {
+      setIsSubmitting(true);
       const response = await fetch("/api/register", {
         method: "POST",
-        headers: { Content_Type: "application/json" },
-        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: user.name,
+          email: user.email,
+          password: user.password,
+          avatar: user.avatar,
+        }),
       });
       const resData: { success: boolean; message: string } =
         await response.json();
-      console.log(resData);
       if (resData.success) {
         toast.success(resData.message);
         router.push("/login");
@@ -49,17 +89,102 @@ const RegisterPage = () => {
     } catch (error: any) {
       toast.error(error.message);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
+    }
+  };
+
+  const sendOTPHandler = async () => {
+    try {
+      if (!user.email) {
+        setError("Email is required");
+        return;
+      }
+      setOtpLoading(true);
+      const response = await fetch("/api/otp/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user.email }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success(data.message);
+        setStoredEmail(user.email);
+        setStep(2);
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    let timerId: string | number | NodeJS.Timeout | undefined;
+
+    if (step === 2 && timer > 0) {
+      timerId = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+    }
+
+    return () => {
+      if (timerId) {
+        clearInterval(timerId);
+      }
+    };
+  }, [step, timer]);
+
+  const handleVerifyOtp = async (e: FormEvent) => {
+    e.preventDefault();
+    setError("");
+    try {
+      if (!otp) {
+        setError("OTP Is Required!");
+        return;
+      }
+      setOtpLoading(true);
+      const response = await fetch("/api/otp", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ otp, email: storedEmail }),
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success(data.message);
+        setStep(3);
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUser((prev) => ({ ...prev, avatar: reader.result as string })); // Store the avatar as a base64 string
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   return (
-    <div className="h-screen flex gap-2 items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8">
-      <div className="bg-white py-8 px-4 lg:w-[30%] md:w-[50%] w-full shadow sm:rounded-lg sm:px-10">
-        <div className="flex items-center relative">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8">
+      <div className="bg-white py-8 px-6 lg:w-[30%] md:w-[50%] w-full shadow sm:rounded-lg">
+        <div className="flex items-center relative mb-6">
           <Link
-            href={"/"}
-            className="absolute left-0 top-4 text-purple-500 hover:bg-gray-400 transition-colors font-bold rounded-full p-1 bg-gray-300"
+            href="/"
+            className="absolute left-0 top-[20px] text-purple-600 hover:bg-gray-200 transition-colors font-bold rounded-full p-2"
           >
             <BsArrowLeft size={25} strokeWidth={1} />
           </Link>
@@ -71,61 +196,121 @@ const RegisterPage = () => {
             alt="Workflow"
           />
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="rounded-md -space-y-px">
-            <div>
+        <form className="mt-6" onSubmit={onSubmit}>
+          <div className="rounded">
+            <div className="mb-4">
               <label htmlFor="name" className="sr-only">
                 Name
               </label>
               <input
                 id="name"
                 type="text"
-                {...register("name", { required: "Name is required" })}
-                autoComplete="name"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
+                name="name"
+                value={user.name}
+                onChange={handleChange}
+                className="appearance-none rounded w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
                 placeholder="Name"
               />
             </div>
-            <div>
+
+            <div className="mb-4 flex items-center">
               <label htmlFor="email-address" className="sr-only">
                 Email address
               </label>
               <input
                 id="email-address"
+                name="email"
                 type="email"
-                {...register("email", {
-                  required: "Email is required",
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Invalid email address",
-                  },
-                })}
-                autoComplete="email"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
+                value={user.email}
+                onChange={handleChange}
+                disabled={step === 2 || step === 3}
+                className="appearance-none flex-1 rounded-l  px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
                 placeholder="Email address"
               />
+              {step === 1 && (
+                <button
+                  type="button"
+                  disabled={otpLoading}
+                  className="px-3 py-2 bg-purple-600 text-white rounded-r-md border border-purple-600"
+                  onClick={sendOTPHandler}
+                >
+                  {otpLoading ? <Spinner /> : "Send OTP"}
+                </button>
+              )}
+              {step === 3 && (
+                <span className="px-3 py-2 bg-green-600 text-white rounded-r-md">
+                  <FaCheckSquare />
+                </span>
+              )}
             </div>
-            <div className="mb-8 relative">
+
+            {step === 2 && (
+              <div className="mb-4 flex items-center">
+                <label htmlFor="otp" className="sr-only">
+                  OTP
+                </label>
+                <input
+                  id="otp"
+                  type="text"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  className="appearance-none flex-1 rounded-l-md px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
+                  placeholder="OTP"
+                />
+                <button
+                  type="button"
+                  disabled={otpLoading}
+                  className="px-3 py-2 bg-purple-600 text-white rounded-r-md border border-purple-600"
+                  onClick={handleVerifyOtp}
+                >
+                  {otpLoading ? <Spinner /> : "Verify OTP"}
+                </button>
+              </div>
+            )}
+
+            <div className="mb-4">
+              <label
+                htmlFor="avatar"
+                className="flex items-center justify-center rounded w-full px-3 py-2 bg-purple-600 text-white cursor-pointer"
+              >
+                Avatar
+              </label>
+              <input
+                id="avatar"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarChange}
+              />
+            </div>
+            {user.avatar && (
+              <div className="mx-auto mb-4 group relative w-24 h-24">
+                <img
+                  src={user.avatar}
+                  alt="Avatar Preview"
+                  className="w-24 h-24 transition-all group-hover:blur-sm object-cover rounded-full"
+                />
+                <button
+                  onClick={() => setUser((prev) => ({ ...prev, avatar: null }))}
+                  className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <FaTrashAlt />
+                </button>
+              </div>
+            )}
+
+            <div className="mb-4 relative">
               <label htmlFor="password" className="sr-only">
                 Password
               </label>
               <input
                 id="password"
-                {...register("password", {
-                  required: "Password is required",
-                  minLength: {
-                    value: 8,
-                    message: "Password must be at least 8 characters long",
-                  },
-                  pattern: {
-                    value: /^(?=.*[A-Z])/,
-                    message:
-                      "Password must contain at least one uppercase letter",
-                  },
-                })}
+                name="password"
+                value={user.password}
+                onChange={handleChange}
                 type={passwordType}
                 autoComplete="new-password"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-purple-500 focus:border-purple-500  sm:text-sm"
+                className="appearance-none rounded w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
                 placeholder="Password"
               />
               <button
@@ -134,49 +319,51 @@ const RegisterPage = () => {
                     prev === "text" ? "password" : "text"
                   )
                 }
-                className="absolute top-[32%] right-2"
+                className="absolute top-2/4 right-3 transform -translate-y-2/4"
                 type="button"
               >
                 {passwordType === "password" ? <FaEye /> : <FaEyeSlash />}
               </button>
             </div>
-            <ul style={{ marginTop: "8px" }} className="list-inside list-disc">
-              {errors.name && (
-                <li className="text-red-500 text-sm">{errors.name.message}</li>
-              )}
-              {errors.email && (
-                <li className="text-red-500 text-sm">{errors.email.message}</li>
-              )}
-              {errors.password && (
-                <li className="text-red-500 text-sm">
-                  {errors.password.message}
-                </li>
-              )}
-            </ul>
-            <div className="text-sm flex justify-end">
+
+            {timer === 0 && (
+              <div className="mt-4 pl-2">
+                <p className="text-red-600 flex items-center gap-1">
+                  <FaCircleInfo /> OTP Is Expired!
+                </p>
+              </div>
+            )}
+            {timer > 0 && step === 2 && (
+              <div className="mt-4 pl-2">
+                <p>OTP Will Expire In {timer} Seconds</p>
+              </div>
+            )}
+
+            {error && <p className="text-red-500 mt-2 text-sm">{error}</p>}
+
+            <div className="text-sm flex justify-end mb-2">
               <Link
                 href="/login"
-                className="font-medium mt-4 text-purple-600 hover:text-purple-500"
+                className="font-medium text-purple-600 hover:text-purple-700"
               >
                 Already Registered?
               </Link>
             </div>
-          </div>
 
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-            >
-              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                <FaUser
-                  className="h-5 w-5 text-purple-500 group-hover:text-purple-400"
-                  aria-hidden="true"
-                />
-              </span>
-              {isLoading && <Spinner />}
-              {!isLoading && "Register"}
-            </button>
+            <div>
+              <button
+                type="submit"
+                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600"
+              >
+                <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                  <FaUser
+                    className="h-5 w-5 text-purple-300 group-hover:text-purple-200"
+                    aria-hidden="true"
+                  />
+                </span>
+                {isSubmitting ? <Spinner /> : "Register"}
+              </button>
+            </div>
           </div>
         </form>
       </div>

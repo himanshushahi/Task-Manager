@@ -52,22 +52,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET(req: NextRequest) {
-  try {
-    const { _id } = await verifyToken(
-      cookies().get(process.env.COOKIE_NAME as string)?.value || ""
-    );
 
-    if (!_id) throw new Error("UnAuthorize User!");
-    await connectDb();
-
-    const column = await Column.find({ createdBy: _id });
-
-    return NextResponse.json({ success: true, column });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message });
-  }
-}
 
 export async function DELETE(req: NextRequest) {
   const { columnId, taskId } = await req.json();

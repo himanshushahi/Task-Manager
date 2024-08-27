@@ -18,7 +18,7 @@ const ConfirmationModal = ({
         isOpen
           ? "opacity-100 pointer-events-auto"
           : "opacity-0 pointer-events-none"
-      } bg-gray-600 transition-opacity bg-opacity-50 overflow-y-auto h-full w-full flex items-center z-10 justify-center`}
+      } bg-gray-600 transition-opacity bg-opacity-50 overflow-y-auto h-full w-full flex items-center z-50 justify-center`}
     >
       <div
         className={`${
@@ -41,7 +41,7 @@ const ConfirmationModal = ({
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-300"
+            className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-300"
           >
             Confirm
           </button>

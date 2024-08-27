@@ -41,6 +41,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "LoggedIn Successfully",
+      user:{
+        name: user.name,
+        email: user.email,
+        avatar:user.avatar,
+      }
     });
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message });

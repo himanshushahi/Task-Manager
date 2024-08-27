@@ -5,7 +5,7 @@ import connectDb from "../../database/connectdb";
 import Column from "../../database/schema/task";
 
 export async function POST(req: NextRequest) {
-  const { columnId, title } = await req.json();
+  const { columnId, title, workSpaceId } = await req.json();
 
   try {
     const { _id } = await verifyToken(
@@ -14,6 +14,10 @@ export async function POST(req: NextRequest) {
 
     if (!_id) throw new Error("UnAuthorize User!");
 
+    if (!columnId || !title || !workSpaceId) {
+      throw new Error("Bad Request");
+    }
+
     await connectDb();
 
     await Column.create({
@@ -21,6 +25,7 @@ export async function POST(req: NextRequest) {
       title: title,
       task: [],
       createdBy: _id,
+      workSpace:workSpaceId,
     });
 
     return NextResponse.json({
@@ -83,7 +88,7 @@ export async function PUT(req: NextRequest) {
         success: true,
       });
     }
-    
+
     throw new Error("Internal Server Error");
   } catch (error: any) {
     return NextResponse.json({ message: error.message, success: false });

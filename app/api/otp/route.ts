@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     await OTP.create({ email, otp });
 
     await transporter.sendMail({
-      from: '"Task Manager" <your-email@gmail.com>',
+      from: `"Task Manager" <${process.env.AUTH_GMAIL}>`,
       to: email,
       subject: "Your OTP for Password Reset",
       text: `Your OTP is ${otp}. It will expire in 2 minutes.`,
@@ -77,7 +77,7 @@ export async function PUT(req: NextRequest) {
 
     const savedOTP = await OTP.findOne({ email });
 
-    if (savedOTP) throw new Error("OTP Is Expired Or Not Found!");
+    if (!savedOTP) throw new Error("OTP Is Expired Or Not Found!");
 
     if (savedOTP.otp === otp) {
       return NextResponse.json({

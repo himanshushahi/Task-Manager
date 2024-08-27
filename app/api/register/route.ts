@@ -2,12 +2,11 @@ import bcrypt from "bcrypt";
 import userModel from "../../database/schema/user";
 import connectDb from "../../database/connectdb";
 import { NextRequest, NextResponse } from "next/server";
-import Column from "../../database/schema/task";
 
 export async function POST(req: NextRequest) {
   try {
     // Parse request body
-    const { name, email, password } = await req.json();
+    const { name, email, avatar, password } = await req.json();
 
     if (!name) throw new Error("Name Is Required!");
 
@@ -43,31 +42,11 @@ export async function POST(req: NextRequest) {
     const hashPassword = await bcrypt.hash(password, saltRounds);
 
     // Create user
-    const user = await userModel.create({
+    await userModel.create({
       name,
       email,
+      avatar,
       password: hashPassword,
-    });
-
-    await Column.create({
-      id: "todo",
-      title: "Todo",
-      tasks: [],
-      createdBy: user._id,
-    });
-
-    await Column.create({
-      id: "in_Progress",
-      title: "In Progress",
-      tasks: [],
-      createdBy: user._id,
-    });
-
-    await Column.create({
-      id: "completed",
-      title: "Completed",
-      tasks: [],
-      createdBy: user._id,
     });
 
     return NextResponse.json(
