@@ -26,7 +26,7 @@ export const initialState: State = {
 };
 
 // Define the shape of your actions
-type Action =
+export type Action =
   | { type: "SET_WORKSPACE"; payload: WorkSpace[] }
   | { type: "ADD_WORKSPACE"; payload: WorkSpace }
   | { type: "DELETE_WORKSPACE"; payload: string }

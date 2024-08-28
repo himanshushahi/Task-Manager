@@ -74,6 +74,7 @@ const RichTextEditor = forwardRef(
       onUpdate: ({ editor }) => {
         onChange(editor.getHTML());
       },
+      autofocus: true,
     });
 
     // Expose the resetContent function to the parent via the ref
@@ -88,16 +89,16 @@ const RichTextEditor = forwardRef(
     }
 
     return (
-      <div className="border rounded-lg p-4 w-full">
-        <div className="flex flex-wrap justify-center gap-2 mb-2 border p-2">
+      <div className="border rounded-lg p-6 w-full max-w-2xl mx-auto bg-white">
+        <div className="flex flex-wrap justify-center gap-3 mb-4 border p-3 bg-gray-50 rounded-lg">
           <button
             onClick={() =>
               editor.chain().focus().toggleHeading({ level: 1 }).run()
             }
-            className={`p-2 border rounded ${
+            className={`p-2 border rounded-lg transition-colors ${
               editor.isActive("heading", { level: 1 })
-                ? "bg-blue-500 text-white"
-                : "bg-white"
+                ? "bg-blue-600 text-white shadow"
+                : "bg-white hover:bg-gray-100"
             }`}
           >
             H1
@@ -106,10 +107,10 @@ const RichTextEditor = forwardRef(
             onClick={() =>
               editor.chain().focus().toggleHeading({ level: 2 }).run()
             }
-            className={`p-2 border rounded ${
+            className={`p-2 border rounded-lg transition-colors ${
               editor.isActive("heading", { level: 2 })
-                ? "bg-blue-500 text-white"
-                : "bg-white"
+                ? "bg-blue-600 text-white shadow"
+                : "bg-white hover:bg-gray-100"
             }`}
           >
             H2
@@ -118,20 +119,20 @@ const RichTextEditor = forwardRef(
             onClick={() =>
               editor.chain().focus().toggleHeading({ level: 3 }).run()
             }
-            className={`p-2 border rounded ${
+            className={`p-2 border rounded-lg transition-colors ${
               editor.isActive("heading", { level: 3 })
-                ? "bg-blue-500 text-white"
-                : "bg-white"
+                ? "bg-blue-600 text-white shadow"
+                : "bg-white hover:bg-gray-100"
             }`}
           >
             H3
           </button>
           <button
             onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-            className={`p-2 border rounded ${
+            className={`p-2 border rounded-lg transition-colors ${
               editor.isActive("codeBlock")
-                ? "bg-blue-500 text-white"
-                : "bg-white"
+                ? "bg-blue-600 text-white shadow"
+                : "bg-white hover:bg-gray-100"
             }`}
           >
             <IoCodeSharp />
@@ -143,91 +144,94 @@ const RichTextEditor = forwardRef(
             }
             value={editor.getAttributes("textStyle").color}
             data-testid="setColor"
-            className="h-10 border rounded bg-white"
+            className="h-10 w-10 border rounded-full bg-white shadow cursor-pointer"
           />
           <button
             onClick={() => editor.chain().focus().setTextAlign("left").run()}
-            className={` p-2 border rounded ${
+            className={`p-2 border rounded-lg transition-colors ${
               editor.isActive({ textAlign: "left" })
-                ? "bg-blue-500 text-white"
-                : "bg-white"
+                ? "bg-blue-600 text-white shadow"
+                : "bg-white hover:bg-gray-100"
             }`}
           >
             <FaAlignLeft />
           </button>
           <button
             onClick={() => editor.chain().focus().setTextAlign("center").run()}
-            className={` p-2 border rounded ${
+            className={`p-2 border rounded-lg transition-colors ${
               editor.isActive({ textAlign: "center" })
-                ? "bg-blue-500 text-white"
-                : "bg-white"
+                ? "bg-blue-600 text-white shadow"
+                : "bg-white hover:bg-gray-100"
             }`}
           >
             <FaAlignCenter />
           </button>
           <button
             onClick={() => editor.chain().focus().setTextAlign("right").run()}
-            className={` p-2 border rounded ${
+            className={`p-2 border rounded-lg transition-colors ${
               editor.isActive({ textAlign: "right" })
-                ? "bg-blue-500 text-white"
-                : "bg-white"
+                ? "bg-blue-600 text-white shadow"
+                : "bg-white hover:bg-gray-100"
             }`}
           >
             <FaAlignRight />
           </button>
           <button
             onClick={() => editor.chain().focus().setTextAlign("justify").run()}
-            className={` p-2 border rounded ${
+            className={`p-2 border rounded-lg transition-colors ${
               editor.isActive({ textAlign: "justify" })
-                ? "bg-blue-500 text-white"
-                : "bg-white"
+                ? "bg-blue-600 text-white shadow"
+                : "bg-white hover:bg-gray-100"
             }`}
           >
             <FaAlignJustify />
           </button>
           <button
             onClick={() => editor.chain().focus().toggleBulletList().run()}
-            className={`p-2 border rounded ${
+            className={`p-2 border rounded-lg transition-colors ${
               editor.isActive("bulletList")
-                ? "bg-blue-500 text-white"
-                : "bg-white"
+                ? "bg-blue-600 text-white shadow"
+                : "bg-white hover:bg-gray-100"
             }`}
           >
             <FaListUl />
           </button>
           <button
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            className={`p-2 border rounded ${
+            className={`p-2 border rounded-lg transition-colors ${
               editor.isActive("orderedList")
-                ? "bg-blue-500 text-white"
-                : "bg-white"
+                ? "bg-blue-600 text-white shadow"
+                : "bg-white hover:bg-gray-100"
             }`}
           >
             <FaListOl />
           </button>
-
           <button
             onClick={() => editor.chain().focus().toggleBold().run()}
-            className={`p-2 border rounded ${
-              editor.isActive("bold") ? "bg-blue-500 text-white" : "bg-white"
+            className={`p-2 border rounded-lg transition-colors ${
+              editor.isActive("bold")
+                ? "bg-blue-600 text-white shadow"
+                : "bg-white hover:bg-gray-100"
             }`}
           >
             <FaBold />
           </button>
           <button
             onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={`p-2 border rounded ${
-              editor.isActive("italic") ? "bg-blue-500 text-white" : "bg-white"
+            className={`p-2 border rounded-lg transition-colors ${
+              editor.isActive("italic")
+                ? "bg-blue-600 text-white shadow"
+                : "bg-white hover:bg-gray-100"
             }`}
           >
             <FaItalic />
           </button>
           <button
             onClick={() => editor.chain().focus().toggleUnderline().run()}
-            className={`p-2 border rounded ${
+            className={`p-2 border rounded-lg transition-colors ${
               editor.isActive("underline")
-                ? "bg-blue-500 text-white"
-                : "bg-white"
+                ? "bg-blue-600 text-white shadow"
+                : "bg-white hover:bg-gray-100"
             }`}
           >
             <FaUnderline />
@@ -239,7 +243,7 @@ const RichTextEditor = forwardRef(
                 editor.chain().focus().setLink({ href: url }).run();
               }
             }}
-            className="p-2 border rounded bg-white"
+            className="p-2 border rounded-lg bg-white hover:bg-gray-100 shadow"
           >
             <FaLink />
           </button>
@@ -251,7 +255,7 @@ const RichTextEditor = forwardRef(
                 editor.chain().focus().setImage({ src: url }).run();
               }
             }}
-            className="p-2 border rounded bg-white"
+            className="p-2 border rounded-lg bg-white hover:bg-gray-100 shadow"
           >
             <FaImage />
           </button>
@@ -259,48 +263,48 @@ const RichTextEditor = forwardRef(
             onClick={() =>
               editor.chain().focus().unsetAllMarks().clearNodes().run()
             }
-            className="p-2 border rounded bg-white"
+            className="p-2 border rounded-lg bg-white hover:bg-gray-100 shadow"
           >
             <FaEraser />
           </button>
           <button
             onClick={() => editor.chain().focus().toggleBlockquote().run()}
-            className={`p-2 border rounded ${
+            className={`p-2 border rounded-lg transition-colors ${
               editor.isActive("blockquote")
-                ? "bg-blue-500 text-white"
-                : "bg-white"
+                ? "bg-blue-600 text-white shadow"
+                : "bg-white hover:bg-gray-100"
             }`}
           >
             <FaQuoteRight />
           </button>
           <button
             onClick={() => editor.chain().focus().setHorizontalRule().run()}
-            className={`p-2 border rounded bg-white`}
+            className="p-2 border rounded-lg bg-white hover:bg-gray-100 shadow"
           >
             <MdHorizontalRule />
           </button>
           <button
             onClick={() => editor.commands.undo()}
-            className={`p-2 border rounded bg-white`}
+            className="p-2 border rounded-lg bg-white hover:bg-gray-100 shadow"
           >
             <BiUndo />
           </button>
           <button
             onClick={() => editor.commands.redo()}
-            className={`p-2 border rounded bg-white`}
+            className="p-2 border rounded-lg bg-white hover:bg-gray-100 shadow"
           >
             <BiRedo />
           </button>
         </div>
         <EditorContent
           editor={editor}
-          className="prose prose-sm max-w-none border h-60 overflow-y-auto"
+          className="prose prose-sm max-w-none border rounded-lg h-60 overflow-y-auto p-4 bg-gray-50 shadow-inner"
         />
       </div>
     );
   }
 );
 
-RichTextEditor.displayName = 'RichTextEditor';
+RichTextEditor.displayName = "RichTextEditor";
 
 export default RichTextEditor;

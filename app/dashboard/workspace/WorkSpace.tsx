@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, {useRef, useState } from "react";
 import {
   DragDropContext,
   Droppable,
@@ -9,21 +9,22 @@ import {
 import { FaEdit, FaEllipsisV, FaPlus, FaTrash } from "react-icons/fa";
 import RichTextEditor from "../../components/RichTextEditor";
 import { MdCancel } from "react-icons/md";
-import highlightJs from "highlight.js";
 import { BiTrashAlt } from "react-icons/bi";
 import toast from "react-hot-toast";
 import Spinner from "../../components/Spinner";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import AddColumnModal from "../../components/AddColumnModal";
 import WorkSpaceMembers from "../../components/WorkSpaceMembers";
+import { useGlobalState } from "../../store/store";
 
 interface Task {
-  id: string;
+  _id: string;
   content: string;
+  createdBy: string;
 }
 
 interface Column {
-  id: string;
+  _id: string;
   title: string;
   tasks: Task[];
 }
@@ -35,6 +36,7 @@ interface workSpaceTypes {
 }
 
 const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
+  const { user } = useGlobalState();
   const [columns, setColumns] = useState<Column[]>(_columns || []);
   const [text, setText] = useState<string>("");
   const [addMode, setAddMode] = useState<string>("");
@@ -56,11 +58,11 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
 
     if (source.droppableId !== destination.droppableId) {
       const sourceColumn = columns.find(
-        (column) => column.id === source.droppableId
+        (column) => column._id === source.droppableId
       );
       if (!sourceColumn) return;
       const destColumn = columns.find(
-        (column) => column.id === destination.droppableId
+        (column) => column._id === destination.droppableId
       );
       if (!destColumn) return;
 
@@ -71,9 +73,9 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
 
       setColumns((prevColumns) =>
         prevColumns.map((column) => {
-          if (column.id === source.droppableId) {
+          if (column._id === source.droppableId) {
             return { ...column, tasks: sourceItems };
-          } else if (column.id === destination.droppableId) {
+          } else if (column._id === destination.droppableId) {
             return { ...column, tasks: destItems };
           } else {
             return column;
@@ -82,7 +84,7 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
       );
     } else {
       const sourceColumn = columns.find(
-        (column) => column.id === source.droppableId
+        (column) => column._id === source.droppableId
       );
       if (!sourceColumn) return;
 
@@ -92,7 +94,7 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
 
       setColumns((prevColumns) =>
         prevColumns.map((column) =>
-          column.id === source.droppableId
+          column._id === source.droppableId
             ? { ...column, tasks: copiedItems }
             : column
         )
@@ -127,14 +129,11 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
   };
 
   const addTask = async (columnId: string) => {
-    const newTask: Task = { id: Date.now().toString(), content: text };
-    setColumns((prevColumns) =>
-      prevColumns.map((column) =>
-        column.id === columnId
-          ? { ...column, tasks: [...column.tasks, newTask] }
-          : column
-      )
-    );
+    if (!user) return;
+
+    const newTask = {
+      content: text,
+    };
 
     try {
       setIsLoading(true);
@@ -145,10 +144,18 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
         },
         body: JSON.stringify({ workSpaceId, columnId, task: newTask }),
       });
-      const data = await response.json();
+      const data: { success: string; task: Task; message: string } =
+        await response.json();
 
       if (data.success) {
         toast.success(data.message);
+        setColumns((prevColumns) =>
+          prevColumns.map((column) =>
+            column._id === columnId
+              ? { ...column, tasks: [...column.tasks, data.task] }
+              : column
+          )
+        );
       } else {
         throw new Error(data.message);
       }
@@ -156,6 +163,7 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
       toast.error(error.message);
     } finally {
       setIsLoading(false);
+      handleReset();
     }
     setText("");
     setAddMode("");
@@ -165,11 +173,9 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
     if (newColumnTitle.trim() === "") return;
     const newColumnId = newColumnTitle.toLowerCase().replace(/\s+/g, "");
     const column = {
-      id: newColumnId,
       title: newColumnTitle,
       tasks: [],
     };
-    setColumns((prev) => [...prev, column]);
     try {
       const response = await fetch("/api/column", {
         method: "POST",
@@ -181,10 +187,12 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
         }),
       });
 
-      const data = await response.json();
+      const data: { success: boolean; message: string; column: Column } =
+        await response.json();
 
       if (data.success) {
         toast.success(data.message);
+        setColumns((prev) => [...prev, data.column]);
       } else {
         throw new Error(data.message);
       }
@@ -197,10 +205,10 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
     if (!columnId || !taskId) return;
     setColumns((prevColumns) =>
       prevColumns.map((column) =>
-        column.id === columnId
+        column._id === columnId
           ? {
               ...column,
-              tasks: column.tasks.filter((task) => task.id !== taskId),
+              tasks: column.tasks.filter((task) => task._id !== taskId),
             }
           : column
       )
@@ -230,15 +238,15 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
 
   const deleteColumn = async (columnId: string) => {
     setColumns((prevColumns) =>
-      prevColumns.filter((column) => column.id !== columnId)
+      prevColumns.filter((column) => column._id !== columnId)
     );
 
     try {
       const response = await fetch(`/api/column/${columnId}`, {
         method: "DELETE",
         credentials: "include",
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({workSpaceId})
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workSpaceId }),
       });
       const data = await response.json();
 
@@ -252,7 +260,6 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
     }
   };
 
-  // const handleHighlight = () => {
   //   const nodes = Array.from(document.querySelectorAll(".codeblock")).map(
   //     (el) => el.firstChild as HTMLElement | null
   //   );
@@ -303,7 +310,7 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
         <div className="flex flex-wrap -mx-2">
           {columns.map((column) => (
             <div
-              key={column.id}
+              key={column._id}
               className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 px-2 mb-4"
             >
               <div className="bg-white rounded shadow-md overflow-hidden">
@@ -314,7 +321,7 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
                       setConfirmation({
                         isOpen: true,
                         action: async () => {
-                          await deleteColumn(column.id);
+                          await deleteColumn(column._id);
                         },
                       });
                     }}
@@ -324,7 +331,7 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
                   </button>
                 </div>
 
-                <Droppable droppableId={column.id}>
+                <Droppable droppableId={column._id}>
                   {(provided) => (
                     <div
                       {...provided.droppableProps}
@@ -333,8 +340,8 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
                     >
                       {column.tasks.map((task, index) => (
                         <Draggable
-                          key={task.id}
-                          draggableId={task.id}
+                          key={task._id}
+                          draggableId={task._id}
                           index={index}
                         >
                           {(provided) => (
@@ -356,11 +363,12 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
                                 className="relative w-full flex justify-end"
                               >
                                 <button
-                                  onClick={() =>
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     setMenuOpen((prev) =>
-                                      prev === task.id ? "0" : task.id
-                                    )
-                                  }
+                                      prev === task._id ? "0" : task._id
+                                    );
+                                  }}
                                   className="text-gray-500 rounded flex items-center gap-2 border justify-center p-1"
                                 >
                                   <FaEllipsisV />
@@ -368,7 +376,7 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
 
                                 <div
                                   className={`absolute top-full min-w-28 right-0 mt-1 bg-white border rounded shadow-md transition-all origin-top-right z-10 ${
-                                    menuOpen === task.id
+                                    menuOpen === task._id
                                       ? "scale-100 opacity-100 pointer-events-auto"
                                       : "scale-95 opacity-0 pointer-events-none"
                                   }`}
@@ -384,7 +392,10 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
                                       setConfirmation({
                                         isOpen: true,
                                         action: async () => {
-                                          await deleteTask(column.id, task.id);
+                                          await deleteTask(
+                                            column._id,
+                                            task._id
+                                          );
                                         },
                                       })
                                     }
@@ -399,9 +410,9 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
                         </Draggable>
                       ))}
                       {provided.placeholder}
-                      {addMode !== column.id && (
+                      {addMode !== column._id && (
                         <button
-                          onClick={() => setAddMode(column.id)}
+                          onClick={() => setAddMode(column._id)}
                           className="w-full bg-purple-600 text-white p-2 hover:bg-purple-600 rounded transition duration-200 flex items-center justify-center"
                         >
                           <FaPlus className="mr-2" /> Add Task
@@ -410,43 +421,45 @@ const WorkSpace = ({ workSpaceId, name, _columns }: workSpaceTypes) => {
 
                       {/* modal */}
                       <div
-                        className={`bg-black ${
-                          addMode === column.id
+                        className={`${
+                          addMode === column._id
                             ? "opacity-100 pointer-events-auto"
                             : "opacity-0 pointer-events-none"
-                        } fixed top-0 transition-all left-0 z-10 w-screen h-screen flex justify-center items-center lg:px-0 md:px-0 px-2 bg-opacity-50`}
+                        } fixed inset-0 z-10 flex items-center justify-center transition-opacity duration-300 bg-black bg-opacity-50`}
                       >
                         <div
-                          className={`bg-white lg:w-1/2 md:w-1/2 w-full  py-4 transition-transform rounded px-4 ${
-                            addMode === column.id ? "scale-100" : "scale-95"
+                          className={`bg-white w-full lg:w-1/2 md:w-1/2 py-6 px-6 rounded shadow-lg transform transition-transform duration-300 ${
+                            addMode === column._id ? "scale-100" : "scale-95"
                           }`}
                         >
-                          <h2 className="text-center text-2xl font-semibold text-purple-600">
-                            Write
-                          </h2>
                           <RichTextEditor
                             onChange={(content) => setText(content)}
                             ref={editorRef}
                           />
-                          <div className="flex justify-end gap-2 mt-2">
+                          <div className="flex justify-end gap-3 mt-4">
                             <button
-                              className="flex p-2 gap-1 bg-red-500 hover:bg-red-700 transition-colors hover:text-gray-100 items-center text-sm rounded-sm text-white"
+                              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md shadow hover:bg-red-600 transition-colors"
                               onClick={() => {
                                 setAddMode("");
                                 handleReset();
                               }}
                             >
-                              <MdCancel /> Cancel
+                              <MdCancel className="text-lg" /> Cancel
                             </button>
                             <button
                               disabled={isLoading}
-                              className="flex p-2 disabled:bg-purple-300 gap-1 bg-purple-600 hover:bg-purple-700 transition-colors hover:text-gray-100 items-center text-sm rounded-sm text-white"
-                              onClick={() => addTask(column.id)}
+                              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-md shadow ${
+                                isLoading
+                                  ? "bg-purple-300"
+                                  : "bg-purple-600 hover:bg-purple-700"
+                              } transition-colors`}
+                              onClick={() => addTask(column._id)}
                             >
-                              {isLoading && <Spinner />}
-                              {!isLoading && (
+                              {isLoading ? (
+                                <Spinner />
+                              ) : (
                                 <>
-                                  <FaPlus /> Add
+                                  <FaPlus className="text-lg" /> Add
                                 </>
                               )}
                             </button>

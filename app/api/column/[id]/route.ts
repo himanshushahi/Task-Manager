@@ -18,7 +18,7 @@ export async function DELETE(
 
     await connectDb();
 
-    await Column.findOneAndDelete({ id: params.id, workSpace: workSpaceId });
+    await Column.findOneAndDelete({ _id: params.id, workSpace: workSpaceId });
 
     return NextResponse.json({
       success: true,

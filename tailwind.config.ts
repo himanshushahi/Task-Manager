@@ -7,7 +7,11 @@ const config: Config = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      boxShadow:{
+        'rounded-shadow': '-1px 1px 7px 4px rgba(0,0,0,0.75)',
+      }
+    },
   },
   plugins: [],
 };

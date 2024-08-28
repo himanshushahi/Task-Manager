@@ -22,7 +22,7 @@ const getInitialColumn = async (
       throw new Error(data.message)
     }
   } catch (error:any) {
-    console.log(error.message)
+    console.log(error)
     return {columns:[],name:""}
   }
 };

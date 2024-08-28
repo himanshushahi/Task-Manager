@@ -4,21 +4,17 @@ import WorkSpace from "./workspace";
 const { Schema } = mongoose;
 
 const TaskSchema = new Schema({
-  id: {
-    type: String,
-    required: true,
-  },
   content: {
     type: String,
     required: true,
   },
+  createdBy:{
+    type: Schema.Types.ObjectId,
+    ref: userModel,
+  }
 });
 
 const ColumnSchema = new Schema({
-  id: {
-    type: String,
-    required: true,
-  },
   title: {
     type: String,
     required: true,

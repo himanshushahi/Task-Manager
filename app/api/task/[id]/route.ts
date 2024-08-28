@@ -19,16 +19,19 @@ export async function GET(
     if (!_id) throw new Error("UnAuthorize User!");
     await connectDb();
 
-    const workSpace = await WorkSpace.findOne({createdBy:_id,_id:params.id}).select('name')
+    const workSpace = await WorkSpace.findOne({
+      $or: [{ createdBy: _id }, { members: _id }],
+      _id: params.id,
+    }).select("name");
+
     const columns = await Column.find({
-      createdBy: _id,
       workSpace: params.id,
     });
 
     return NextResponse.json({
       success: true,
       columns: columns,
-      name:workSpace.name,
+      name: workSpace.name,
     });
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message });

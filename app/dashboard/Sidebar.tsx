@@ -78,7 +78,7 @@ function Sidebar() {
     <>
       {/* Mobile overlay */}
         <div
-          className={`fixed ${sidebarOpen?'opacity-100 pointer-events-auto':'opacity-0 pointer-events-auto'} transition-opacity inset-0 bg-black bg-opacity-50 z-40 lg:hidden`}
+          className={`fixed ${sidebarOpen?'opacity-100 pointer-events-auto':'opacity-0 pointer-events-none'} transition-opacity inset-0 bg-black bg-opacity-50 z-40 lg:hidden`}
           onClick={() => setSidebarOpen(false)}
         ></div>
 

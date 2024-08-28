@@ -5,7 +5,7 @@ import connectDb from "../../database/connectdb";
 import Column from "../../database/schema/task";
 
 export async function POST(req: NextRequest) {
-  const { columnId, title, workSpaceId } = await req.json();
+  const {title, workSpaceId } = await req.json();
 
   try {
     const { _id } = await verifyToken(
@@ -14,14 +14,13 @@ export async function POST(req: NextRequest) {
 
     if (!_id) throw new Error("UnAuthorize User!");
 
-    if (!columnId || !title || !workSpaceId) {
+    if (!title || !workSpaceId) {
       throw new Error("Bad Request");
     }
 
     await connectDb();
 
-    await Column.create({
-      id: columnId,
+    const column = await Column.create({
       title: title,
       task: [],
       createdBy: _id,
@@ -30,7 +29,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Column Created Successfull",
+      column,
+      message: "Column Created Successfully",
     });
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message });
@@ -54,10 +54,11 @@ export async function PUT(req: NextRequest) {
 
     const { _id } = await verifyToken(token);
 
+    if (!_id) throw new Error("UnAuthorize User");
+
     // Find the source column
     const sourceColumn = await Column.findOne({
-      id: sourceId,
-      createdBy: _id,
+      _id: sourceId,
       workSpace: workSpaceId,
     });
     if (!sourceColumn) throw new Error("Source column not found");
@@ -66,8 +67,7 @@ export async function PUT(req: NextRequest) {
     if (!isSameColumn) {
       // Find the destination column
       const destColumn = await Column.findOne({
-        id: destinationId,
-        createdBy: _id,
+        _id: destinationId,
         workSpace: workSpaceId,
       });
       if (!destColumn) throw new Error("Destination column not found");
@@ -90,13 +90,12 @@ export async function PUT(req: NextRequest) {
       const [removed] = sourceColumn.tasks.splice(sourceIndex, 1);
       sourceColumn.tasks.splice(destinationIndex, 0, removed);
       await sourceColumn.save();
+
       return NextResponse.json({
         message: "Tasks updated successfully",
         success: true,
       });
     }
-
-    throw new Error("Internal Server Error");
   } catch (error: any) {
     return NextResponse.json({ message: error.message, success: false });
   }
