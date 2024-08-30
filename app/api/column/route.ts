@@ -56,6 +56,7 @@ export async function PUT(req: NextRequest) {
 
     if (!_id) throw new Error("UnAuthorize User");
 
+    await connectDb()
     // Find the source column
     const sourceColumn = await Column.findOne({
       _id: sourceId,

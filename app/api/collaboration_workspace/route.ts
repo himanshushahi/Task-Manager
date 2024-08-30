@@ -3,6 +3,7 @@ import { verifyToken } from "../../utils/tokenManger";
 import { cookies, headers } from "next/headers";
 import WorkSpace from "../../database/schema/workspace";
 import Column from "../../database/schema/task";
+import connectDb from "../../database/connectdb";
 
 export async function GET(req: NextRequest) {
   try {
@@ -13,6 +14,7 @@ export async function GET(req: NextRequest) {
     );
 
     if (!_id) throw new Error("UnAuthorize User!");
+    await connectDb();
     let workSpaces = await WorkSpace.find({ members: _id });
 
     if (workSpaces.length > 0) {
@@ -24,7 +26,7 @@ export async function GET(req: NextRequest) {
           // Collect tasks created by the specified user
           const allTasks = columns.flatMap((column) =>
             column.tasks.filter(
-              (task:any) => task.createdBy.toString() === _id.toString()
+              (task: any) => task.createdBy.toString() === _id.toString()
             )
           );
 

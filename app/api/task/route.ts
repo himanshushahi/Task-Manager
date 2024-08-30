@@ -69,10 +69,10 @@ export async function DELETE(req: NextRequest) {
     );
 
     if (!_id) throw new Error("UnAuthorize User!");
-    await connectDb();
     if (!columnId) throw new Error("Column id is required!");
     if (!taskId) throw new Error("Task id is Required!");
     if (!workSpaceId) throw new Error("Workspace_Id is Required!");
+    await connectDb();
 
     const workSpace = await WorkSpace.findById(workSpaceId);
     if (!workSpace) throw new Error("UnAuthorize User!");

@@ -90,6 +90,7 @@ export async function DELETE(req: NextRequest) {
     const { _id } = await verifyToken(token);
     if (!_id) throw new Error("UnAuthorize User");
 
+    await connectDb()
     await Column.deleteMany({ workSpace: id });
 
     await WorkSpace.findOneAndDelete({ _id: id, createdBy: _id });
