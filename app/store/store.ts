@@ -1,5 +1,18 @@
 import { createContext, useContext, Dispatch } from "react";
 
+export interface Task {
+  _id: string;
+  content: string;
+  createdBy: string;
+}
+
+export interface Column {
+  _id: string;
+  title: string;
+  tasks: Task[];
+  createdBy: string;
+}
+
 export type userType = {
   _id: string;
   name: string;
@@ -17,12 +30,14 @@ type WorkSpace = {
 interface State {
   workSpaces: WorkSpace[];
   user: userType | null;
+  activeWorkSpaceColumn: Column[];
 }
 
 // Initial state
 export const initialState: State = {
   workSpaces: [],
   user: null,
+  activeWorkSpaceColumn: [],
 };
 
 // Define the shape of your actions
@@ -36,6 +51,33 @@ export type Action =
   | {
       type: "DELETE_WORKSPACE_MEMBERS";
       payload: { id: string; userIds: string[] };
+    }
+  | {
+      type: "SET_ACTIVE_WORKSPACE_COLUMN";
+      payload: { columns: Column[] };
+    }
+  | {
+      type: "ADD_COLUMN";
+      payload: Column;
+    }
+  | {
+      type: "DELETE_COLUMN";
+      payload: { id: string };
+    }
+  | {
+      type: "CREATE_TASK";
+      payload: { columnId: string; task: Task };
+    }
+  | {
+      type: "DELETE_TASK";
+      payload: { columnId: string; taskId: string };
+    }
+  | {
+      type: "UPDATE_TASK_POSITION";
+      payload: {
+        source: { droppableId: string; index: number };
+        destination: { droppableId: string; index: number };
+      };
     };
 
 // Reducer function
@@ -82,6 +124,104 @@ export const reducer = (state: State, action: Action): State => {
           }
         }),
       };
+    case "SET_ACTIVE_WORKSPACE_COLUMN":
+      return { ...state, activeWorkSpaceColumn: action.payload.columns };
+    case "ADD_COLUMN":
+      return {
+        ...state,
+        activeWorkSpaceColumn: [...state.activeWorkSpaceColumn, action.payload],
+      };
+    case "DELETE_COLUMN":
+      return {
+        ...state,
+        activeWorkSpaceColumn: state.activeWorkSpaceColumn.filter(
+          (column) => column._id !== action.payload.id
+        ),
+      };
+    case "CREATE_TASK":
+      return {
+        ...state,
+        activeWorkSpaceColumn: state.activeWorkSpaceColumn.map((column) => {
+          if (column._id === action.payload.columnId) {
+            return {
+              ...column,
+              tasks: [...column.tasks, action.payload.task],
+            };
+          } else {
+            return column;
+          }
+        }),
+      };
+    case "DELETE_TASK":
+      return {
+        ...state,
+        activeWorkSpaceColumn: state.activeWorkSpaceColumn.map((column) => {
+          if (column._id === action.payload.columnId) {
+            return {
+              ...column,
+              tasks: column.tasks.filter(
+                (task) => task._id !== action.payload.taskId
+              ),
+            };
+          } else {
+            return column;
+          }
+        }),
+      };
+    case "UPDATE_TASK_POSITION":
+      const { source, destination } = action.payload;
+
+      if (!destination) return state; // If there's no destination, do nothing
+
+      const columns = state.activeWorkSpaceColumn;
+
+      if (source.droppableId !== destination.droppableId) {
+        const sourceColumn = columns.find(
+          (column) => column._id === source.droppableId
+        );
+        if (!sourceColumn) return state;
+
+        const destColumn = columns.find(
+          (column) => column._id === destination.droppableId
+        );
+        if (!destColumn) return state;
+
+        const sourceItems = [...sourceColumn.tasks];
+        const destItems = [...destColumn.tasks];
+        const [removed] = sourceItems.splice(source.index, 1);
+        destItems.splice(destination.index, 0, removed);
+
+        return {
+          ...state,
+          activeWorkSpaceColumn: columns.map((column) => {
+            if (column._id === source.droppableId) {
+              return { ...column, tasks: sourceItems };
+            } else if (column._id === destination.droppableId) {
+              return { ...column, tasks: destItems };
+            } else {
+              return column;
+            }
+          }),
+        };
+      } else {
+        const sourceColumn = columns.find(
+          (column) => column._id === source.droppableId
+        );
+        if (!sourceColumn) return state;
+
+        const copiedItems = [...sourceColumn.tasks];
+        const [removed] = copiedItems.splice(source.index, 1);
+        copiedItems.splice(destination.index, 0, removed);
+
+        return {
+          ...state,
+          activeWorkSpaceColumn: columns.map((column) =>
+            column._id === source.droppableId
+              ? { ...column, tasks: copiedItems }
+              : column
+          ),
+        };
+      }
 
     case "SET_USER":
       return { ...state, user: action.payload };
