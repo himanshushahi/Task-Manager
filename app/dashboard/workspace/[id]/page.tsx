@@ -73,7 +73,7 @@ const WorkSpace = ({ params }: paramsType) => {
       }
     };
     getInitialColumn();
-  }, [setIsPageLoading]);
+  }, [setIsPageLoading,dispach,workSpaceId]);
 
   useSocketListner();
 

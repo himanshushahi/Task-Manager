@@ -40,7 +40,7 @@ const LiveCursor = ({ roomId }: LiveCursorProps) => {
     return () => {
       socket.off("cursor-move", handleCursorMove);
     };
-  }, [socket]);
+  }, []);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
