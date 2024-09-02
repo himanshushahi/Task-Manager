@@ -48,7 +48,7 @@ interface EditorRefs {
 }
 const WorkSpace = ({ params }: paramsType) => {
   const workSpaceId = params.id;
-  const router = useRouter()
+  const router = useRouter();
   const [isPageLoading, setIsPageLoading] = useState<boolean>(true);
   const { user, activeWorkSpaceColumn: columns } = useGlobalState();
   const dispach = useGlobalDispatch();
@@ -87,13 +87,13 @@ const WorkSpace = ({ params }: paramsType) => {
         }
       } catch (error: any) {
         console.log(error);
-        router.push('/')
+        router.push("/");
       } finally {
         setIsPageLoading(false);
       }
     };
     getInitialColumn();
-  }, [setIsPageLoading, dispach, workSpaceId]);
+  }, [setIsPageLoading, dispach, workSpaceId, router]);
 
   useSocketListner();
 

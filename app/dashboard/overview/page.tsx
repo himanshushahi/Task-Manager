@@ -12,7 +12,9 @@ import Link from "next/link";
 import Image from "next/image";
 import AddWorkSpaceModal from "../../components/AddWorkSpaceModal";
 
-function Dashboard() {
+export const dynamic = 'force-dynamic'
+
+export default function Dashboard() {
   const { workSpaces, user } = useGlobalState(); // Assuming user information is available in global state
 
   const [completedTasksLength, setCompletedTasksLength] = useState<number>(0);
@@ -41,7 +43,7 @@ function Dashboard() {
     };
     getAllCollaboration();
   }, []);
-
+  
   useEffect(() => {
     const getCompletedTasks = async () => {
       const response = await fetch("/api/task/task_stats", {
@@ -52,12 +54,13 @@ function Dashboard() {
         credentials: "include",
       });
       const data = await response.json();
-
+  
       setCompletedTasksLength(data.completedTaskLength);
       setAllTaskLength(data.allTaskLength);
     };
     getCompletedTasks();
   }, []);
+  
   return (
     <div className="lg:p-6 p-4">
       <h1 className="text-2xl lg:text-start md:text-start text-center font-bold mb-6 text-teal-600">
@@ -245,5 +248,3 @@ function Dashboard() {
     </div>
   );
 }
-
-export default Dashboard;
