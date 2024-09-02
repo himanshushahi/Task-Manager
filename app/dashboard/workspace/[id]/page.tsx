@@ -1,5 +1,11 @@
 "use client";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  MutableRefObject,
+  useState,
+} from "react";
 import {
   DragDropContext,
   Droppable,
@@ -7,7 +13,6 @@ import {
   DropResult,
 } from "react-beautiful-dnd";
 import { FaEdit, FaEllipsisV, FaPlus, FaTrash } from "react-icons/fa";
-import RichTextEditor from "../../../components/RichTextEditor";
 import { MdCancel } from "react-icons/md";
 import { BiTrashAlt } from "react-icons/bi";
 import toast from "react-hot-toast";
@@ -22,9 +27,10 @@ import {
   useGlobalState,
 } from "../../../store/store";
 import { socket } from "../../../../socket";
-import LiveCursor from "../../../components/LiveCusror";
 import useSocketListner from "../../../Hooks/useSocketListner";
 import WorkSpaceSkeleton from "../../../components/WorkSpaceSkeleton";
+import { Editor } from "@tiptap/react";
+import RichTextEditor from "../../../components/RichTextEditor";
 
 interface paramsType {
   params: {
@@ -32,13 +38,24 @@ interface paramsType {
   };
 }
 
+interface textType {
+  [columnId: string]: string;
+}
+
+interface EditorRefs {
+  [columnId: string]: Editor | null;
+}
 const WorkSpace = ({ params }: paramsType) => {
   const workSpaceId = params.id;
-  const [isPageLoading,setIsPageLoading] = useState<boolean>(true)
+  const [isPageLoading, setIsPageLoading] = useState<boolean>(true);
   const { user, activeWorkSpaceColumn: columns } = useGlobalState();
   const dispach = useGlobalDispatch();
-  const [text, setText] = useState<string>("");
+  const [text, setText] = useState<textType>({});
   const [addMode, setAddMode] = useState<string>("");
+  const [editMode, setEditMode] = useState<{
+    columnId: string | null;
+    taskId: string | null;
+  }>({ columnId: null, taskId: null });
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [confirmation, setConfirmation] = useState({
     isOpen: false,
@@ -68,12 +85,12 @@ const WorkSpace = ({ params }: paramsType) => {
         }
       } catch (error: any) {
         console.log(error);
-      }finally{
-        setIsPageLoading(false)
+      } finally {
+        setIsPageLoading(false);
       }
     };
     getInitialColumn();
-  }, [setIsPageLoading,dispach,workSpaceId]);
+  }, [setIsPageLoading, dispach, workSpaceId]);
 
   useSocketListner();
 
@@ -131,7 +148,7 @@ const WorkSpace = ({ params }: paramsType) => {
     if (!user) return;
 
     const newTask = {
-      content: text,
+      content: text[addMode],
     };
 
     try {
@@ -164,9 +181,56 @@ const WorkSpace = ({ params }: paramsType) => {
       toast.error(error.message);
     } finally {
       setIsLoading(false);
+      setText((prev) => ({ ...prev, [columnId]: "" }));
+      setAddMode("");
+      editorRefs.current[columnId]?.commands.setContent("");
     }
-    setText("");
-    setAddMode("");
+  };
+
+  const updateTask = async (columnId: string | null, taskId: string | null) => {
+    if (!columnId || !taskId) {
+      toast.error("Bad Request!");
+      return;
+    }
+
+    const newTask = {
+      content: text[columnId],
+    };
+
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/task", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ workSpaceId, columnId, taskId, task: newTask }),
+      });
+      const data: { success: string; task: Task; message: string } =
+        await response.json();
+
+      if (data.success) {
+        toast.success(data.message);
+        dispach({
+          type: "UPDATE_TASK",
+          payload: { columnId, task: data.task },
+        });
+        socket.emit("update-task", {
+          roomId: workSpaceId,
+          task: data.task,
+          columnId,
+        });
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setIsLoading(false);
+      setText((prev) => ({ ...prev, [columnId]: "" }));
+      setEditMode({ columnId: null, taskId: null });
+      editorRefs.current[columnId]?.commands.setContent("");
+    }
   };
 
   const addColumn = async (newColumnTitle: string) => {
@@ -285,6 +349,8 @@ const WorkSpace = ({ params }: paramsType) => {
   const [menuOpen, setMenuOpen] = useState<string>("0");
   const menuRef = useRef<HTMLDivElement | null>(null);
 
+  const editorRefs: MutableRefObject<EditorRefs> = useRef({});
+
   if (isPageLoading) {
     return <WorkSpaceSkeleton />;
   }
@@ -378,8 +444,18 @@ const WorkSpace = ({ params }: paramsType) => {
                                 >
                                   <button
                                     onClick={() => {
-                                      setAddMode(column._id);
-                                      // setEditableContent(task.content);
+                                      setEditMode((prev) => ({
+                                        ...prev,
+                                        columnId: column._id,
+                                        taskId: task._id,
+                                      }));
+                                      setText((prev) => ({
+                                        ...prev,
+                                        [column._id]: task.content,
+                                      }));
+                                      editorRefs.current[
+                                        column._id
+                                      ]?.commands.setContent(task.content);
                                     }}
                                     className="text-purple-600 w-full flex items-center gap-2 p-3 hover:bg-gray-100 rounded-t-lg"
                                   >
@@ -420,45 +496,89 @@ const WorkSpace = ({ params }: paramsType) => {
                       {/* modal */}
                       <div
                         className={`${
-                          addMode === column._id
+                          addMode === column._id ||
+                          editMode.columnId === column._id
                             ? "opacity-100 pointer-events-auto"
                             : "opacity-0 pointer-events-none"
                         } fixed inset-0 z-30 flex items-center justify-center transition-opacity duration-300 bg-black bg-opacity-50`}
                       >
                         <div
                           className={`bg-white w-full lg:w-1/2 md:w-1/2 py-6 px-8 rounded-lg shadow-lg transform transition-transform duration-300 ${
-                            addMode === column._id ? "scale-100" : "scale-95"
+                            addMode === column._id ||
+                            editMode.columnId === column._id
+                              ? "scale-100"
+                              : "scale-95"
                           }`}
                         >
                           <RichTextEditor
-                            onChange={(content) => setText(content)}
+                            ref={(el: Editor | null) => {
+                              editorRefs.current[column._id] = el;
+                            }}
+                            onChange={(value: string) =>
+                              setText((prev) => ({
+                                ...prev,
+                                [column._id]: value,
+                              }))
+                            }
                           />
                           <div className="flex justify-end gap-4 mt-6">
                             <button
                               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg shadow hover:bg-red-600 transition-colors"
                               onClick={() => {
                                 setAddMode("");
+                                setEditMode({ columnId: null, taskId: null });
+                                setText((prev) => ({
+                                  ...prev,
+                                  [column._id]: "",
+                                }));
+                                editorRefs.current[
+                                  column._id
+                                ]?.commands.clearContent();
                               }}
                             >
                               <MdCancel className="text-lg" /> Cancel
                             </button>
-                            <button
-                              disabled={isLoading}
-                              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg shadow ${
-                                isLoading
-                                  ? "bg-purple-300"
-                                  : "bg-purple-600 hover:bg-purple-700"
-                              } transition-colors`}
-                              onClick={() => addTask(column._id)}
-                            >
-                              {isLoading ? (
-                                <Spinner />
-                              ) : (
-                                <>
-                                  <FaPlus className="text-lg" /> Add
-                                </>
-                              )}
-                            </button>
+                            {addMode === column._id && (
+                              <button
+                                disabled={isLoading}
+                                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg shadow ${
+                                  isLoading
+                                    ? "bg-purple-300"
+                                    : "bg-purple-600 hover:bg-purple-700"
+                                } transition-colors`}
+                                onClick={() => addTask(column._id)}
+                              >
+                                {isLoading ? (
+                                  <Spinner />
+                                ) : (
+                                  <>
+                                    <FaPlus className="text-lg" /> Add
+                                  </>
+                                )}
+                              </button>
+                            )}
+
+                            {editMode.columnId === column._id && (
+                              <button
+                                disabled={isLoading}
+                                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg shadow ${
+                                  isLoading
+                                    ? "bg-purple-300"
+                                    : "bg-purple-600 hover:bg-purple-700"
+                                } transition-colors`}
+                                onClick={() =>
+                                  updateTask(editMode.columnId, editMode.taskId)
+                                }
+                              >
+                                {isLoading ? (
+                                  <Spinner />
+                                ) : (
+                                  <>
+                                    <FaPlus className="text-lg" /> Update
+                                  </>
+                                )}
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>

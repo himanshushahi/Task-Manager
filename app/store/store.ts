@@ -73,6 +73,10 @@ export type Action =
       payload: { columnId: string; taskId: string };
     }
   | {
+      type: "UPDATE_TASK";
+      payload: { columnId: string; task: Task };
+    }
+  | {
       type: "UPDATE_TASK_POSITION";
       payload: {
         source: { droppableId: string; index: number };
@@ -152,6 +156,27 @@ export const reducer = (state: State, action: Action): State => {
           }
         }),
       };
+    case "UPDATE_TASK":
+      return {
+        ...state,
+        activeWorkSpaceColumn: state.activeWorkSpaceColumn.map((column) => {
+          if (column._id === action.payload.columnId) {
+            return {
+              ...column,
+              tasks: column.tasks.map((task) => {
+                if (task._id === action.payload.task._id) {
+                  return action.payload.task;
+                } else {
+                  return task;
+                }
+              }),
+            };
+          } else {
+            return column;
+          }
+        }),
+      };
+
     case "DELETE_TASK":
       return {
         ...state,

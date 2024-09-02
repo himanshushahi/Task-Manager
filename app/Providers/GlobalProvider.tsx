@@ -12,6 +12,7 @@ import {
 } from "../store/store";
 import StoreModal from "../store/page";
 
+
 // Correct function syntax for accepting props
 function GlobalProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -32,7 +33,6 @@ function GlobalProvider({ children }: { children: React.ReactNode }) {
       console.log(error.message);
     }
   };
-
 
   useEffect(() => {
     const authenticateUser = async () => {
@@ -64,16 +64,14 @@ function GlobalProvider({ children }: { children: React.ReactNode }) {
     pathname.includes("/register") ||
     pathname.includes("/forgot-password");
 
-
   return (
     <GlobalStateContext.Provider value={state}>
       <GlobalDispatchContext.Provider value={dispatch}>
-        <>
-          {!navbarHidden && <Navbar />}
-          {children}
-          <Toaster />
-          {/* <StoreModal /> */}
-        </>
+        {!navbarHidden && <Navbar />}
+        {children}
+
+        <Toaster />
+        {/* <StoreModal /> */}
       </GlobalDispatchContext.Provider>
     </GlobalStateContext.Provider>
   );

@@ -1,5 +1,5 @@
 "use client";
-import  { useEffect } from "react";
+import { useEffect } from "react";
 import { Column, Task, useGlobalDispatch } from "../store/store";
 import { socket } from "../../socket";
 
@@ -22,6 +22,16 @@ function useSocketListner() {
 
     function addNewTask({ columnId, task }: { columnId: string; task: Task }) {
       dispach({ type: "CREATE_TASK", payload: { columnId, task } });
+    }
+
+    function handleUpdateTask({
+      columnId,
+      task,
+    }: {
+      columnId: string;
+      task: Task;
+    }) {
+      dispach({ type: "UPDATE_TASK", payload: { columnId, task } });
     }
 
     const handleDeleteTask = ({
@@ -48,6 +58,7 @@ function useSocketListner() {
     };
 
     socket.on("create-task", addNewTask);
+    socket.on("update-task", handleUpdateTask);
     socket.on("delete-task", handleDeleteTask);
     socket.on("new-column", handleAddColumn);
     socket.on("delete-column", handleDeleteColumn);
@@ -56,6 +67,7 @@ function useSocketListner() {
       socket.off("new-column", handleAddColumn);
       socket.off("delete-column", handleDeleteColumn);
       socket.off("create-task", addNewTask);
+      socket.off("update-task", handleUpdateTask);
       socket.off("delete-task", handleDeleteTask);
       socket.off("task-position-update", handleTaskPositionUpdate);
     };
