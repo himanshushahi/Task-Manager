@@ -123,13 +123,13 @@ function Forgot() {
           key={i}
           data-stepbar={i}
           className={`flex flex-col ${
-            step > i ? "after:bg-purple-600 " : "after:bg-gray-200"
+            step > i ? "after:bg-teal-600 " : "after:bg-gray-200"
           } z-10 items-center`}
         >
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center ${
               step >= i
-                ? "bg-purple-600 text-white"
+                ? "bg-teal-600 text-white"
                 : "bg-gray-200 text-gray-600"
             }`}
           >
@@ -137,7 +137,7 @@ function Forgot() {
           </div>
           <div
             className={`text-xs mt-1 ${
-              step >= i ? "text-purple-600" : "text-gray-400"
+              step >= i ? "text-teal-600" : "text-gray-400"
             }`}
           >
             {i === 1 ? "Email" : i === 2 ? "OTP" : "Reset"}
@@ -169,7 +169,7 @@ function Forgot() {
     <div className="min-h-screen bg-gray-100 flex justify-center items-center py-12 sm:px-6 lg:px-8">
       <div className="bg-white py-8 px-4 sm:px-10 lg:w-[30%] md:w-[50%] w-full shadow sm:rounded-lg lg:mx-0 mx-4">
         <div className="sm:mx-auto mb-4 sm:w-full sm:max-w-md">
-          <h2 className="text-center lg:text-2xl text-xl font-extrabold text-purple-600">
+          <h2 className="text-center lg:text-2xl text-xl font-extrabold text-teal-600">
             Forgot Password
           </h2>
         </div>
@@ -191,7 +191,7 @@ function Forgot() {
                 <input
                   type="email"
                   id="email"
-                  className="appearance-none rounded-none relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600  sm:text-sm"
+                  className="appearance-none rounded-none relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-teal-600 focus:border-teal-600  sm:text-sm"
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -202,7 +202,7 @@ function Forgot() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-600"
               >
                 {isLoading && <Spinner />}
                 {!isLoading && "Send OTP"}
@@ -227,7 +227,7 @@ function Forgot() {
                 <input
                   type="text"
                   id="otp"
-                  className="appearance-none rounded-none relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
+                  className="appearance-none rounded-none relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-teal-600 focus:border-teal-600 sm:text-sm"
                   placeholder="Enter OTP"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
@@ -250,7 +250,7 @@ function Forgot() {
                   type="button"
                   disabled={isLoading}
                   onClick={handleSubmitEmail}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600"
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-600"
                 >
                   {isLoading && <Spinner />}
                   {!isLoading && "Resend OTP"}
@@ -260,7 +260,7 @@ function Forgot() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600"
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-600"
                 >
                   {isLoading && <Spinner />}
                   {!isLoading && "Verify OTP"}
@@ -286,7 +286,7 @@ function Forgot() {
                 <input
                   type="password"
                   id="password"
-                  className="appearance-none rounded-none relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600  sm:text-sm"
+                  className="appearance-none rounded-none relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-teal-600 focus:border-teal-600  sm:text-sm"
                   placeholder="Enter new password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -307,7 +307,7 @@ function Forgot() {
                 <input
                   type="password"
                   id="confirmPassword"
-                  className="appearance-none rounded-none relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600  sm:text-sm"
+                  className="appearance-none rounded-none relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-teal-600 focus:border-teal-600  sm:text-sm"
                   placeholder="Confirm new password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -318,7 +318,7 @@ function Forgot() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-600"
               >
                 {isLoading && <Spinner />}
                 {!isLoading && "Reset Password"}

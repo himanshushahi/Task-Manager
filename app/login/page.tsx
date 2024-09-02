@@ -60,7 +60,7 @@ const LoginPage = () => {
         <div className="flex items-center relative">
           <Link
             href={"/"}
-            className="absolute left-0 top-[20px] text-purple-600 hover:bg-gray-200 transition-colors font-bold rounded-full p-2"
+            className="absolute left-0 top-[20px] text-teal-600 hover:bg-gray-200 transition-colors font-bold rounded-full p-2"
           >
             <BsArrowLeft size={25} strokeWidth={1} />
           </Link>
@@ -145,7 +145,7 @@ const LoginPage = () => {
             <div className="text-sm">
               <Link
                 href="/forgot-password"
-                className="font-medium text-purple-600 hover:text-purple-600"
+                className="font-medium text-teal-600 hover:text-teal-600"
               >
                 Forgot your password?
               </Link>
@@ -154,7 +154,7 @@ const LoginPage = () => {
             <div className="text-sm">
               <Link
                 href="/register"
-                className="font-medium text-purple-600 hover:text-purple-600"
+                className="font-medium text-teal-600 hover:text-teal-600"
               >
                 Register?
               </Link>
@@ -164,11 +164,11 @@ const LoginPage = () => {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                 <FaLock
-                  className="h-5 w-5 text-purple-600 group-hover:text-purple-400"
+                  className="h-5 w-5 text-teal-600 group-hover:text-teal-400"
                   aria-hidden="true"
                 />
               </span>
@@ -180,7 +180,7 @@ const LoginPage = () => {
           <div>
             <button
               type="button"
-              className="flex items-center justify-center px-4 gap-2 bg-gray-300 w-full py-2 rounded-full text-purple-600"
+              className="flex items-center justify-center px-4 gap-2 bg-gray-300 w-full py-2 rounded-full text-teal-600"
             >
               <FaGoogle /> Login With Google
             </button>

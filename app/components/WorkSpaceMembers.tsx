@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { useGlobalDispatch, useGlobalState, userType } from "../store/store";
 import { FiX, FiSearch, FiUserPlus, FiTrash2 } from "react-icons/fi";
 import Image from "next/image";
@@ -30,17 +30,17 @@ function WorkSpaceMembers({ _id }: { _id: string }) {
       {filterdWorkSpace.members.length < 1 && (
         <button
           onClick={() => setShowModal((prev) => (prev ? false : true))}
-          className="text-white lg:flex md:flex  hidden gap-1 items-center py-2 px-3 bg-purple-600 rounded"
+          className="text-white lg:flex md:flex  hidden gap-1 items-center py-2 px-3 bg-teal-600 rounded"
         >
           <FiUserPlus /> Add Members
         </button>
       )}
-        <button
-          className="lg:hidden md:hidden flex items-center"
-          onClick={() => setShowModal(true)}
-        >
-          <BsThreeDots size={20}/>
-        </button>
+      <button
+        className="lg:hidden md:hidden flex items-center"
+        onClick={() => setShowModal(true)}
+      >
+        <BsThreeDots size={20} />
+      </button>
       <div
         className="cursor-pointer lg:flex md:flex hidden "
         onClick={() => setShowModal((prev) => (prev ? false : true))}
@@ -93,46 +93,69 @@ const MembersModal = ({
   workSpaceId: string;
 }) => {
   const dispatch = useGlobalDispatch();
+  const { workSpaces } = useGlobalState();
   const [searchEmail, setSearchEmail] = useState<string>("");
   const [searchResults, setSearchResults] = useState<userType[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<userType[]>([]);
   const [error, setError] = useState<string>("");
 
-  // Mock function to search users - replace with actual API call
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   const searchUsers = useCallback(
     async (email: string): Promise<userType[]> => {
+      // Abort the previous request if it's still ongoing
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      // Create a new AbortController for the current request
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
+
       try {
-        const response = await fetch("/api/search_user?query=" + email);
+        const response = await fetch("/api/search_user?query=" + email, {
+          signal: abortController.signal,
+        });
+
         const { success, user } = await response.json();
+
         if (success) {
           return user as userType[];
         } else {
           throw new Error();
         }
-      } catch (error) {
+      } catch (error: any) {
+        if (error.name === "AbortError") {
+          console.log("Request aborted");
+        }
         return [];
       }
     },
     []
   );
 
-  const handleSearch = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const email = e.target.value;
-      setSearchEmail(email);
-      if (email.length > 2) {
-        const results = await searchUsers(email);
-        setSearchResults(
-          results.filter(
-            (result) => !selectedUsers.some((user) => user._id === result._id)
-          )
-        );
-      } else {
-        setSearchResults([]);
-      }
-    },
-    [searchUsers, selectedUsers]
-  );
+  const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const email = e.target.value;
+    setSearchEmail(email);
+    if (email.length > 2) {
+      const results = await searchUsers(email);
+      setSearchResults(
+        results.filter((result) => {
+          const isUserSelected = selectedUsers.some(
+            (user) => user._id === result._id
+          );
+          const isUserInWorkspace = workSpaces
+            .find((workspace) => workspace._id === workSpaceId)
+            ?.members.some((member) => member._id === result._id);
+
+          // Return the result if the user is not selected and not in the workspace
+          return !isUserSelected && !isUserInWorkspace;
+        })
+      );
+    } else {
+      setSearchResults([]);
+    }
+  };
 
   const addUser = useCallback(
     (user: userType) => {
@@ -237,7 +260,7 @@ const MembersModal = ({
         } transition-transform rounded-lg shadow-xl w-full max-w-md`}
       >
         <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold text-purple-600">
+          <h2 className="text-xl font-semibold text-teal-600">
             Workspace Members
           </h2>
           <button
@@ -256,7 +279,7 @@ const MembersModal = ({
                 placeholder="Search users..."
                 value={searchEmail}
                 onChange={handleSearch}
-                className="w-full pl-10 pr-4 py-2 border rounded focus:outline-none focus:border-purple-500"
+                className="w-full pl-10 pr-4 py-2 border rounded focus:outline-none focus:border-teal-500"
               />
               <FiSearch
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
@@ -280,7 +303,7 @@ const MembersModal = ({
                         />{" "}
                         {user.name} ({user.email})
                       </span>
-                      <FaUserPlus className="text-purple-600" />
+                      <FaUserPlus className="text-teal-600" />
                     </div>
                   ))}
                 </div>
@@ -292,7 +315,7 @@ const MembersModal = ({
                   {selectedUsers.map((user) => (
                     <div
                       key={user._id}
-                      className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full flex items-center text-sm"
+                      className="bg-teal-50 text-teal-700 px-3 py-1 rounded-full flex items-center text-sm"
                     >
                       <span>{user.name}</span>
                       <FaTimes
@@ -309,7 +332,7 @@ const MembersModal = ({
           <button
             onClick={handleSubmit}
             disabled={isAddingMembers}
-            className="w-full bg-purple-500 text-white py-2 px-4 rounded hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="w-full bg-teal-500 text-white py-2 px-4 rounded hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
             {isAddingMembers ? (
               <Spinner />
@@ -322,7 +345,7 @@ const MembersModal = ({
           </button>
 
           <div className="mt-6">
-            <h3 className="text-lg text-purple-600 font-semibold mb-2">
+            <h3 className="text-lg text-teal-600 font-semibold mb-2">
               Current Members
             </h3>
             <div className="flex flex-col justify-center gap-2 items-starts ">

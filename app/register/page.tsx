@@ -184,7 +184,7 @@ const RegisterPage = () => {
         <div className="flex items-center relative mb-6">
           <Link
             href="/"
-            className="absolute left-0 top-[20px] text-purple-600 hover:bg-gray-200 transition-colors font-bold rounded-full p-2"
+            className="absolute left-0 top-[20px] text-teal-600 hover:bg-gray-200 transition-colors font-bold rounded-full p-2"
           >
             <BsArrowLeft size={25} strokeWidth={1} />
           </Link>
@@ -208,7 +208,7 @@ const RegisterPage = () => {
                 name="name"
                 value={user.name}
                 onChange={handleChange}
-                className="appearance-none rounded-b w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
+                className="appearance-none rounded-b w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-teal-600 focus:border-teal-600 sm:text-sm"
                 placeholder="Name"
               />
             </div>
@@ -225,14 +225,14 @@ const RegisterPage = () => {
                   value={user.email}
                   onChange={handleChange}
                   disabled={step === 2 || step === 3}
-                  className="appearance-none w-full sm:flex-1 rounded-b px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600 text-sm"
+                  className="appearance-none w-full sm:flex-1 rounded-b px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-teal-600 focus:border-teal-600 text-sm"
                   placeholder="Email address"
                 />
                 {step === 1 && (
                   <button
                     type="button"
                     disabled={otpLoading}
-                    className="mt-2 sm:mt-0 w-full flex justify-center sm:w-auto px-3 py-2 bg-purple-600 text-white rounded-b sm:rounded-r sm:rounded-b-none border border-purple-600 hover:bg-purple-700 transition-colors duration-200 ease-in-out"
+                    className="mt-2 sm:mt-0 w-full flex justify-center sm:w-auto px-3 py-2 bg-teal-600 text-white rounded-b sm:rounded-r sm:rounded-b-none border border-teal-600 hover:bg-teal-700 transition-colors duration-200 ease-in-out"
                     onClick={sendOTPHandler}
                   >
                     {otpLoading ? <Spinner /> : "Send OTP"}
@@ -258,13 +258,13 @@ const RegisterPage = () => {
                     type="text"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
-                    className="appearance-none w-full sm:flex-1 rounded-t sm:rounded-l sm:rounded-t-none px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600 text-sm"
+                    className="appearance-none w-full sm:flex-1 rounded-t sm:rounded-l sm:rounded-t-none px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-teal-600 focus:border-teal-600 text-sm"
                     placeholder="Enter OTP"
                   />
                   <button
                     type="button"
                     disabled={otpLoading}
-                    className="mt-2 sm:mt-0 w-full flex justify-center sm:w-auto px-3 py-2 bg-purple-600 text-white rounded-b sm:rounded-r sm:rounded-b-none border border-purple-600 hover:bg-purple-700 transition-colors duration-200 ease-in-out disabled:bg-purple-400 disabled:cursor-not-allowed"
+                    className="mt-2 sm:mt-0 w-full flex justify-center sm:w-auto px-3 py-2 bg-teal-600 text-white rounded-b sm:rounded-r sm:rounded-b-none border border-teal-600 hover:bg-teal-700 transition-colors duration-200 ease-in-out disabled:bg-teal-400 disabled:cursor-not-allowed"
                     onClick={handleVerifyOtp}
                   >
                     {otpLoading ? <Spinner /> : "Verify OTP"}
@@ -276,7 +276,7 @@ const RegisterPage = () => {
             <div className="mb-4">
               <label
                 htmlFor="avatar"
-                className="flex items-center justify-center rounded w-full px-3 py-2 bg-purple-600 text-white cursor-pointer"
+                className="flex items-center justify-center rounded w-full px-3 py-2 bg-teal-600 text-white cursor-pointer"
               >
                 Avatar
               </label>
@@ -315,7 +315,7 @@ const RegisterPage = () => {
                 onChange={handleChange}
                 type={passwordType}
                 autoComplete="new-password"
-                className="appearance-none rounded-b w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
+                className="appearance-none rounded-b w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-teal-600 focus:border-teal-600 sm:text-sm"
                 placeholder="Password"
               />
               <button
@@ -349,7 +349,7 @@ const RegisterPage = () => {
             <div className="text-sm flex justify-end mb-2">
               <Link
                 href="/login"
-                className="font-medium text-purple-600 hover:text-purple-700"
+                className="font-medium text-teal-600 hover:text-teal-700"
               >
                 Already Registered?
               </Link>
@@ -358,11 +358,11 @@ const RegisterPage = () => {
             <div>
               <button
                 type="submit"
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600"
+                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-600"
               >
                 <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                   <FaUser
-                    className="h-5 w-5 text-purple-300 group-hover:text-purple-200"
+                    className="h-5 w-5 text-teal-300 group-hover:text-teal-200"
                     aria-hidden="true"
                   />
                 </span>

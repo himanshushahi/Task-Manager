@@ -31,6 +31,7 @@ import useSocketListner from "../../../Hooks/useSocketListner";
 import WorkSpaceSkeleton from "../../../components/WorkSpaceSkeleton";
 import { Editor } from "@tiptap/react";
 import RichTextEditor from "../../../components/RichTextEditor";
+import { useRouter } from "next/navigation";
 
 interface paramsType {
   params: {
@@ -47,6 +48,7 @@ interface EditorRefs {
 }
 const WorkSpace = ({ params }: paramsType) => {
   const workSpaceId = params.id;
+  const router = useRouter()
   const [isPageLoading, setIsPageLoading] = useState<boolean>(true);
   const { user, activeWorkSpaceColumn: columns } = useGlobalState();
   const dispach = useGlobalDispatch();
@@ -85,6 +87,7 @@ const WorkSpace = ({ params }: paramsType) => {
         }
       } catch (error: any) {
         console.log(error);
+        router.push('/')
       } finally {
         setIsPageLoading(false);
       }
@@ -361,7 +364,7 @@ const WorkSpace = ({ params }: paramsType) => {
         <div className="flex justify-center flex-1 items-center">
           <h2
             id="header"
-            className="lg:text-2xl text-xl text-purple-600 text-center "
+            className="lg:text-2xl text-xl text-teal-600 text-center "
           >
             {name}
           </h2>
@@ -377,8 +380,8 @@ const WorkSpace = ({ params }: paramsType) => {
               key={column._id}
               className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 px-2 mb-6"
             >
-              <div className="bg-gradient-to-r from-purple-500 to-indigo-500 rounded-lg shadow-lg overflow-hidden">
-                <div className="flex justify-between bg-opacity-75 bg-purple-700 text-white p-4 rounded-t-lg">
+              <div className="bg-gradient-to-r from-teal-500 to-indigo-500 rounded-lg shadow-lg overflow-hidden">
+                <div className="flex justify-between bg-opacity-75 bg-teal-700 text-white p-4 rounded-t-lg">
                   <h2 className="text-lg font-semibold">{column.title}</h2>
                   <button
                     onClick={() => {
@@ -457,7 +460,7 @@ const WorkSpace = ({ params }: paramsType) => {
                                         column._id
                                       ]?.commands.setContent(task.content);
                                     }}
-                                    className="text-purple-600 w-full flex items-center gap-2 p-3 hover:bg-gray-100 rounded-t-lg"
+                                    className="text-teal-600 w-full flex items-center gap-2 p-3 hover:bg-gray-100 rounded-t-lg"
                                   >
                                     <FaEdit /> Edit
                                   </button>
@@ -487,7 +490,7 @@ const WorkSpace = ({ params }: paramsType) => {
                       {addMode !== column._id && (
                         <button
                           onClick={() => setAddMode(column._id)}
-                          className="w-full bg-purple-600 text-white p-3 mt-3 hover:bg-purple-700 rounded-lg transition duration-200 flex items-center justify-center"
+                          className="w-full bg-teal-600 text-white p-3 mt-3 hover:bg-teal-700 rounded-lg transition duration-200 flex items-center justify-center"
                         >
                           <FaPlus className="mr-2" /> Add Task
                         </button>
@@ -543,8 +546,8 @@ const WorkSpace = ({ params }: paramsType) => {
                                 disabled={isLoading}
                                 className={`flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg shadow ${
                                   isLoading
-                                    ? "bg-purple-300"
-                                    : "bg-purple-600 hover:bg-purple-700"
+                                    ? "bg-teal-300"
+                                    : "bg-teal-600 hover:bg-teal-700"
                                 } transition-colors`}
                                 onClick={() => addTask(column._id)}
                               >
@@ -563,8 +566,8 @@ const WorkSpace = ({ params }: paramsType) => {
                                 disabled={isLoading}
                                 className={`flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg shadow ${
                                   isLoading
-                                    ? "bg-purple-300"
-                                    : "bg-purple-600 hover:bg-purple-700"
+                                    ? "bg-teal-300"
+                                    : "bg-teal-600 hover:bg-teal-700"
                                 } transition-colors`}
                                 onClick={() =>
                                   updateTask(editMode.columnId, editMode.taskId)

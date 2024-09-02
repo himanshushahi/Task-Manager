@@ -26,7 +26,7 @@ const ConfirmationModal = ({
         } transition-transform relative bg-white rounded-lg shadow-xl p-8 max-w-md w-full m-4`}
       >
         <div className="mb-6 flex items-center">
-          <FiAlertCircle className="text-purple-600 w-10 h-10 mr-4" />
+          <FiAlertCircle className="text-teal-600 w-10 h-10 mr-4" />
           <h3 className="text-lg font-semibold text-gray-900">
             Confirm Action
           </h3>
@@ -41,7 +41,7 @@ const ConfirmationModal = ({
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-300"
+            className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-300"
           >
             Confirm
           </button>

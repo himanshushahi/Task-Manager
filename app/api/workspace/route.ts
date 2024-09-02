@@ -15,7 +15,10 @@ export async function GET(req: NextRequest) {
     const { _id } = await verifyToken(token);
     if (!_id) throw new Error("UnAuthorize User");
 
-    const workSpaces = await WorkSpace.find({ createdBy: _id }).populate('members','name email avatar');
+    const workSpaces = await WorkSpace.find({ createdBy: _id }).populate(
+      "members",
+      "name email avatar"
+    );
 
     return NextResponse.json({
       success: true,
@@ -90,7 +93,7 @@ export async function DELETE(req: NextRequest) {
     const { _id } = await verifyToken(token);
     if (!_id) throw new Error("UnAuthorize User");
 
-    await connectDb()
+    await connectDb();
     await Column.deleteMany({ workSpace: id });
 
     await WorkSpace.findOneAndDelete({ _id: id, createdBy: _id });
@@ -132,7 +135,14 @@ export async function PUT(req: NextRequest) {
 
     if (!workSpace) throw new Error("Bad Request");
 
-    workSpace.members.push(users);
+    workSpace.members.forEach((member:string) => {
+      const userIdIndex = users.indexOf(member);
+      if (userIdIndex !== -1) {
+        users.splice(userIdIndex, 1); // Remove the user ID from the users array
+      }
+    });
+
+    workSpace.members.push(users)
 
     await workSpace.save();
 

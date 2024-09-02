@@ -1,11 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { FaUserPlus, FaTimes, FaSearch, FaUndo } from "react-icons/fa";
 import { useGlobalDispatch, useGlobalState } from "../../store/store";
 import toast from "react-hot-toast";
-import { LiaUndoAltSolid } from "react-icons/lia";
+import Spinner from "../../components/Spinner";
 
 interface User {
   _id: string;
@@ -14,51 +14,69 @@ interface User {
   avatar: string;
 }
 
-interface Workspace {
-  id: string;
-  name: string;
-}
-
 const CollaboratorForm: React.FC = () => {
   const [searchEmail, setSearchEmail] = useState<string>("");
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [selectedWorkspace, setSelectedWorkspace] = useState<string>("");
   const [searchResults, setSearchResults] = useState<User[]>([]);
-
+  const [loading, setLoading] = useState<boolean>(false);
   const { workSpaces } = useGlobalState();
   const dispatch = useGlobalDispatch();
-  // Mock function to search users - replace with actual API call
+
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   const searchUsers = useCallback(async (email: string): Promise<User[]> => {
+    // Abort the previous request if it's still ongoing
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Create a new AbortController for the current request
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
     try {
-      const response = await fetch("/api/search_user?query=" + email);
+      const response = await fetch("/api/search_user?query=" + email, {
+        signal: abortController.signal,
+      });
+
       const { success, user } = await response.json();
+
       if (success) {
         return user as User[];
       } else {
         throw new Error();
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === "AbortError") {
+        console.log("Request aborted");
+      }
       return [];
     }
   }, []);
 
-  const handleSearch = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const email = e.target.value;
-      setSearchEmail(email);
-      if (email.length > 2) {
-        const results = await searchUsers(email);
-        setSearchResults(
-          results.filter(
-            (result) => !selectedUsers.some((user) => user._id === result._id)
-          )
-        );
-      } else {
-        setSearchResults([]);
-      }
-    },
-    [searchUsers, selectedUsers]
-  );
+  const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const email = e.target.value;
+    setSearchEmail(email);
+    if (email.length > 2) {
+      const results = await searchUsers(email);
+      setSearchResults(
+        results.filter((result) => {
+          const isUserSelected = selectedUsers.some(
+            (user) => user._id === result._id
+          );
+          const isUserInWorkspace = workSpaces
+            .find((workspace) => workspace._id === selectedWorkspace)
+            ?.members.some((member) => member._id === result._id);
+
+          // Return the result if the user is not selected and not in the workspace
+          return !isUserSelected && !isUserInWorkspace;
+        })
+      );
+    } else {
+      setSearchResults([]);
+    }
+  };
 
   const addUser = useCallback(
     (user: User) => {
@@ -94,6 +112,7 @@ const CollaboratorForm: React.FC = () => {
           setError("Invalid selected users");
           return;
         }
+        setLoading(true);
         const response = await fetch("/api/workspace", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -114,6 +133,8 @@ const CollaboratorForm: React.FC = () => {
         }
       } catch (error: any) {
         toast.error(error.message);
+      } finally {
+        setLoading(false);
       }
       setSelectedUsers([]);
       setSelectedWorkspace("");
@@ -124,7 +145,7 @@ const CollaboratorForm: React.FC = () => {
   return (
     <div className="bg-white rounded-lg lg:p-6 md:p-4 p-2">
       <h2 className="text-2xl font-semibold mb-6 text-gray-800 flex items-center">
-        <FaUserPlus className="mr-3 text-purple-600" /> Add Collaborators
+        <FaUserPlus className="mr-3 text-teal-600" /> Add Collaborators
       </h2>
       <form
         onSubmit={handleSubmit}
@@ -147,7 +168,7 @@ const CollaboratorForm: React.FC = () => {
                   setError("");
                   setSelectedWorkspace(e.target.value);
                 }}
-                className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md"
+                className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-md"
               >
                 <option value="">Select a workspace</option>
                 {workSpaces.map((workspace) => (
@@ -160,7 +181,7 @@ const CollaboratorForm: React.FC = () => {
           </div>
 
           {/* User Search */}
-          <div className="col-span-1 md:col-span-2 lg:col-span-1">
+          <div className="col-span-1 relative md:col-span-2 lg:col-span-1">
             <label
               htmlFor="email"
               className="block text-sm font-medium text-gray-700 mb-2"
@@ -172,9 +193,10 @@ const CollaboratorForm: React.FC = () => {
                 type="email"
                 id="email"
                 value={searchEmail}
+                disabled={selectedWorkspace.length < 1}
                 onChange={handleSearch}
                 placeholder="Search collaborators by email"
-                className="block border w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md"
+                className="block border w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-md"
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                 <FaSearch className="text-gray-400" />
@@ -200,7 +222,7 @@ const CollaboratorForm: React.FC = () => {
                         {user.name} ({user.email})
                       </span>
                     </span>
-                    <FaUserPlus className="text-purple-600" />
+                    <FaUserPlus className="text-teal-600" />
                   </div>
                 ))}
               </div>
@@ -211,14 +233,24 @@ const CollaboratorForm: React.FC = () => {
           <div className="col-span-1 flex gap-2 lg:items-end md:items-end items-center">
             <button
               type="submit"
-              className="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-300 flex items-center justify-center"
+              disabled={loading}
+              className="w-full bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition duration-300 flex items-center justify-center"
             >
-              <FaUserPlus className="mr-2" />
-              Add
+              {loading ? (
+                <Spinner />
+              ) : (
+                <>
+                  <FaUserPlus className="mr-2" />
+                  Add
+                </>
+              )}
             </button>
             <button
               type="button"
-              onClick={()=>{setSelectedUsers([]);setSelectedWorkspace('')}}
+              onClick={() => {
+                setSelectedUsers([]);
+                setSelectedWorkspace("");
+              }}
               className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none transition duration-300 flex items-center justify-center"
             >
               <FaUndo className="mr-2" /> Reset
@@ -236,7 +268,7 @@ const CollaboratorForm: React.FC = () => {
               {selectedUsers.map((user) => (
                 <div
                   key={user._id}
-                  className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full flex items-center text-sm"
+                  className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full flex items-center text-sm"
                 >
                   <span>{user.name}</span>
                   <button
@@ -244,7 +276,7 @@ const CollaboratorForm: React.FC = () => {
                     onClick={() => removeUser(user._id)}
                     className="ml-2 focus:outline-none"
                   >
-                    <FaTimes className="text-purple-600 hover:text-purple-800" />
+                    <FaTimes className="text-teal-600 hover:text-teal-800" />
                   </button>
                 </div>
               ))}

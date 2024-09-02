@@ -3,6 +3,7 @@ import { verifyToken } from "../../../utils/tokenManger";
 import { cookies } from "next/headers";
 import connectDb from "../../../database/connectdb";
 import Column from "../../../database/schema/task";
+import WorkSpace from "../../../database/schema/workspace";
 
 export async function DELETE(
   req: NextRequest,
@@ -18,12 +19,19 @@ export async function DELETE(
 
     await connectDb();
 
-    await Column.findOneAndDelete({ _id: params.id, workSpace: workSpaceId });
+    const workSpace = await WorkSpace.findById(workSpaceId);
 
-    return NextResponse.json({
-      success: true,
-      message: "Column Deleted Successfully",
-    });
+    if (
+      workSpace.members.includes(_id) ||
+      workSpace.createdBy.toString() === _id.toString()
+    ) {
+      await Column.findOneAndDelete({ _id: params.id, workSpace: workSpaceId });
+      return NextResponse.json({
+        success: true,
+        message: "Column Deleted Successfully",
+      });
+    }
+    throw new Error("UnAuthorize User.");
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message });
   }

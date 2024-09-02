@@ -15,28 +15,29 @@ function StoreModal() {
         See State
       </button>
 
-      <div className={`fixed inset-0 top-0 left-0 w-full flex items-center justify-center ${showModal?'':'pointer-events-none'}`}>
-      <div
-        className={`transition-opacity duration-300 ${
-          showModal ? "opacity-100" : "opacity-0 pointer-events-none"
-        } bg-white rounded-lg shadow-lg p-6 w-72 max-w-full`}
-      >
-        <h1 className="flex items-center justify-between mb-4 text-xl font-semibold">
-          Store Modal
-          <button
-            className="text-gray-500 hover:text-gray-700 focus:outline-none"
-            onClick={() => setShowModal(false)}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-[10000]">
+          <div
+            className={`transition-opacity duration-300 bg-white rounded-lg shadow-lg z-[200] p-6 w-1/2 max-h-[80vh] overflow-auto`}
           >
-            ✕
-          </button>
-        </h1>
-        <p className="text-sm overflow-auto text-gray-700 break-words">
-          State: <pre>
-          {JSON.stringify(state, null, 2)}
-          </pre>
-        </p>
-      </div>
-      </div>
+            <h1 className="flex items-center justify-between mb-4 text-xl font-semibold">
+              Store Modal
+              <button
+                className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                onClick={() => setShowModal(false)}
+              >
+                ✕
+              </button>
+            </h1>
+            <p className="text-sm text-gray-700 break-words">
+              State:{" "}
+              <pre className="whitespace-pre-wrap">
+                {JSON.stringify(state, null, 2)}
+              </pre>
+            </p>
+          </div>
+        </div>
+      )}
     </>
   );
 }

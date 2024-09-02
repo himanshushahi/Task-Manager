@@ -18,7 +18,7 @@ const AddColumnModal: React.FC<{ onAdd: (value: string) => void }> = ({
   return (
     <>
       <button
-        className="px-4 py-2 rounded-sm text-white w-full flex items-center justify-center text-sm bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-600 transition duration-200 ease-in-out"
+        className="px-4 py-2 rounded-sm text-white w-full flex items-center justify-center text-sm bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-600 transition duration-200 ease-in-out"
         onClick={() => setColumnAddMode(true)}
       >
         <FaPlus className="mr-2" /> Add Column
@@ -36,7 +36,7 @@ const AddColumnModal: React.FC<{ onAdd: (value: string) => void }> = ({
             columnAddMode ? "scale-100" : "scale-95"
           } transition-transform p-6 bg-white rounded-xl shadow-lg max-w-md w-[95%] mx-auto`}
         >
-          <h2 className="text-xl font-bold font-[math] text-purple-600 text-center mb-6">
+          <h2 className="text-xl font-bold font-[math] text-teal-600 text-center mb-6">
             Add Column
           </h2>
           <input
@@ -60,7 +60,7 @@ const AddColumnModal: React.FC<{ onAdd: (value: string) => void }> = ({
               <MdCancel className="mr-2" /> Cancel
             </button>
             <button
-              className="px-4 py-2 rounded-sm  text-white text-sm bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-600 transition duration-200 ease-in-out flex items-center"
+              className="px-4 py-2 rounded-sm  text-white text-sm bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-600 transition duration-200 ease-in-out flex items-center"
               onClick={() => addColumn()}
             >
               <FaPlus className="mr-2" /> Add

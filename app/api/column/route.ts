@@ -3,9 +3,10 @@ import { verifyToken } from "../../utils/tokenManger";
 import { cookies } from "next/headers";
 import connectDb from "../../database/connectdb";
 import Column from "../../database/schema/task";
+import WorkSpace from "../../database/schema/workspace";
 
 export async function POST(req: NextRequest) {
-  const {title, workSpaceId } = await req.json();
+  const { title, workSpaceId } = await req.json();
 
   try {
     const { _id } = await verifyToken(
@@ -20,18 +21,25 @@ export async function POST(req: NextRequest) {
 
     await connectDb();
 
-    const column = await Column.create({
-      title: title,
-      task: [],
-      createdBy: _id,
-      workSpace: workSpaceId,
-    });
+    const workSpace = await WorkSpace.findById(workSpaceId);
 
-    return NextResponse.json({
-      success: true,
-      column,
-      message: "Column Created Successfully",
-    });
+    if (workSpace.members.includes(_id) || workSpace.createdBy.toString() === _id.toString()) {
+      const column = await Column.create({
+        title: title,
+        task: [],
+        createdBy: _id,
+        workSpace: workSpaceId,
+      });
+  
+      return NextResponse.json({
+        success: true,
+        column,
+        message: "Column Created Successfully",
+      });
+    }
+
+    throw new Error('UnAuthorize user.')
+   
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message });
   }
@@ -56,7 +64,7 @@ export async function PUT(req: NextRequest) {
 
     if (!_id) throw new Error("UnAuthorize User");
 
-    await connectDb()
+    await connectDb();
     // Find the source column
     const sourceColumn = await Column.findOne({
       _id: sourceId,

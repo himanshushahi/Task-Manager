@@ -112,10 +112,10 @@ function Sidebar() {
         <Link
           href="/dashboard/overview"
           className={`group mb-2 rounded-lg overflow-hidden  transition-all duration-300  ${
-            pathname === "/dashboard/overview" ? "bg-purple-600" : ""
+            pathname === "/dashboard/overview" ? "bg-teal-600" : ""
           }`}
         >
-          <div className="flex items-center w-full p-4 text-white group-hover:bg-purple-600 transition-colors duration-300">
+          <div className="flex items-center w-full p-4 text-white group-hover:bg-teal-600 transition-colors duration-300">
             <span className="text-xl">
               <IoStatsChart />
             </span>
@@ -154,7 +154,7 @@ function Sidebar() {
         <button
           disabled={isLoading}
           onClick={logoutHandler}
-          className="flex items-center gap-4 p-4 hover:bg-purple-600 rounded-lg transition-colors duration-300 text-white"
+          className="flex items-center gap-4 p-4 hover:bg-teal-600 rounded-lg transition-colors duration-300 text-white"
         >
           {isLoading ? (
             <button className="flex w-full justify-center items-center"><Spinner /></button>
@@ -223,8 +223,8 @@ const NavLink = memo(function ({
       <button
         onClick={() => setIsOpen((prev) => !prev)}
         className={`w-full ${
-          isOpen ? "bg-purple-600" : ""
-        } flex items-center justify-between p-4 group-hover:bg-purple-600 transition-colors duration-300 text-white`}
+          isOpen ? "bg-teal-600" : ""
+        } flex items-center justify-between p-4 group-hover:bg-teal-600 transition-colors duration-300 text-white`}
       >
         <div className="flex items-center w-full gap-4">
           <span className="text-xl">{icon}</span>
@@ -251,7 +251,7 @@ const NavLink = memo(function ({
           <Link
             key={item._id}
             href={`/dashboard/workspace/${item._id}`}
-            className="flex items-center justify-between text-sm py-3 px-6 text-gray-700 hover:bg-purple-50 transition-colors duration-200"
+            className="flex items-center justify-between text-sm py-3 px-6 text-gray-700 hover:bg-teal-50 transition-colors duration-200"
           >
             <span className="font-medium">{item.name}</span>
             <button
@@ -269,7 +269,7 @@ const NavLink = memo(function ({
         {!addMode && (
           <button
             onClick={() => setAddMode(true)}
-            className="py-3 px-6 text-purple-600 text-sm font-medium hover:bg-purple-50 flex items-center w-full gap-2 transition-colors duration-200"
+            className="py-3 px-6 text-teal-600 text-sm font-medium hover:bg-teal-50 flex items-center w-full gap-2 transition-colors duration-200"
           >
             <FaPlus /> Add WorkSpace
           </button>

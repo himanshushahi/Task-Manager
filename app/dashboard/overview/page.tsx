@@ -3,7 +3,6 @@ import {
   FaExternalLinkAlt,
   FaEnvelope,
   FaUsers,
-  FaUserEdit,
 } from "react-icons/fa";
 import { FaFolder, FaTasks, FaChartLine, FaCheckCircle } from "react-icons/fa";
 import { useGlobalState } from "../../store/store";
@@ -61,11 +60,11 @@ function Dashboard() {
   }, []);
   return (
     <div className="lg:p-6 p-4">
-      <h1 className="text-2xl lg:text-start md:text-start text-center font-bold mb-6 text-purple-600">
+      <h1 className="text-2xl lg:text-start md:text-start text-center font-bold mb-6 text-teal-600">
         Overview
       </h1>
       {/* User Information */}
-      <div className="bg-gradient-to-r from-purple-500 to-indigo-600 shadow-lg rounded-xl p-4 sm:p-6 mb-6">
+      <div className="bg-gradient-to-r from-teal-500 to-indigo-600 shadow-lg rounded-xl p-4 sm:p-6 mb-6">
         <div className="flex flex-col sm:flex-row items-center">
           <div className="relative w-20 h-20 mb-4 sm:mb-0">
             <Image
@@ -81,7 +80,7 @@ function Dashboard() {
             <h2 className="text-xl sm:text-2xl font-bold mb-2 text-white">
               {user?.name}
             </h2>
-            <div className="flex items-center justify-center sm:justify-start text-purple-200">
+            <div className="flex items-center justify-center sm:justify-start text-teal-200">
               <FaEnvelope className="mr-2" />
               <p className="text-sm sm:text-base break-all">{user?.email}</p>
             </div>
@@ -91,7 +90,7 @@ function Dashboard() {
       {/* Statistics */}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-        <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl p-6 shadow-lg transform hover:scale-105 transition-transform duration-200">
+        <div className="bg-gradient-to-br from-teal-500 to-indigo-600 rounded-xl p-6 shadow-lg transform hover:scale-105 transition-transform duration-200">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-white text-sm font-medium uppercase">
@@ -101,17 +100,17 @@ function Dashboard() {
                 {workSpaces.length}
               </p>
             </div>
-            <div className="bg-purple-300 bg-opacity-30 rounded-full p-3">
+            <div className="bg-teal-300 bg-opacity-30 rounded-full p-3">
               <FaFolder className="text-white text-xl" />
             </div>
           </div>
-          <div className="mt-4 text-purple-200 text-sm font-medium flex items-center">
+          <div className="mt-4 text-teal-200 text-sm font-medium flex items-center">
             <FaChartLine className="mr-1" />
             <span>4% increase</span>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-500 to-teal-400 rounded-xl p-6 shadow-lg transform hover:scale-105 transition-transform duration-200">
+        <div className="bg-gradient-to-br from-teal-500 to-teal-400 rounded-xl p-6 shadow-lg transform hover:scale-105 transition-transform duration-200">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-white text-sm font-medium uppercase">
@@ -121,11 +120,11 @@ function Dashboard() {
                 {allTaskLength}
               </p>
             </div>
-            <div className="bg-purple-300 bg-opacity-30 rounded-full p-3">
+            <div className="bg-teal-300 bg-opacity-30 rounded-full p-3">
               <FaTasks className="text-white text-xl" />
             </div>
           </div>
-          <div className="mt-4 text-purple-200 text-sm font-medium flex items-center">
+          <div className="mt-4 text-teal-200 text-sm font-medium flex items-center">
             <FaChartLine className="mr-1" />
             <span>12% increase</span>
           </div>
@@ -154,7 +153,7 @@ function Dashboard() {
       {/* Workspaces List */}
       <div className="bg-white rounded-xl p-4 sm:p-6 mb-6">
         <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center">
-          <FaFolder className="mr-3 text-purple-500" /> Your Workspaces
+          <FaFolder className="mr-3 text-teal-500" /> Your Workspaces
         </h2>
         <div className="flex flex-col gap-2">
           {workSpaces.map((workspace) => (
@@ -165,7 +164,7 @@ function Dashboard() {
                 </span>
                 <Link
                   href={`/dashboard/workspace/${workspace._id}`}
-                  className="inline-flex items-center px-4 py-2 bg-purple-600 text-white font-semibold rounded-md hover:bg-purple-700 transition-colors duration-200"
+                  className="inline-flex items-center px-4 py-2 bg-teal-600 text-white font-semibold rounded-md hover:bg-teal-700 transition-colors duration-200"
                 >
                   Open <FaExternalLinkAlt className="ml-2" />
                 </Link>
@@ -173,14 +172,14 @@ function Dashboard() {
 
               <div className="flex items-center text-gray-600 text-sm mb-3">
                 <div className="flex items-center mr-6">
-                  <FaUsers className="mr-2 text-purple-500" />
+                  <FaUsers className="mr-2 text-teal-500" />
                   <span>{workspace?.members.length || 0} members</span>
                 </div>
               </div>
 
               <div className="relative h-2 bg-gray-200 rounded-full">
                 <div
-                  className="absolute top-0 left-0 h-full bg-purple-600 rounded-full transition-all duration-300 ease-in-out"
+                  className="absolute top-0 left-0 h-full bg-teal-600 rounded-full transition-all duration-300 ease-in-out"
                   style={{
                     width: `${
                       (completedTasksLength / allTaskLength) * 100 || 0
@@ -193,7 +192,7 @@ function Dashboard() {
         </div>
         <button
           onClick={() => setAddMode(true)}
-          className="mt-6 w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-300 ease-in-out flex items-center justify-center"
+          className="mt-6 w-full bg-teal-600 text-white py-2 px-4 rounded-lg hover:bg-teal-700 transition duration-300 ease-in-out flex items-center justify-center"
         >
           <FaFolder className="mr-2" /> Create New Workspace
         </button>
@@ -203,11 +202,14 @@ function Dashboard() {
       {collaborationWorkSpaces.length > 0 && (
         <div className="bg-white rounded-xl lg:p-6 md:p-4 p-2 mb-6">
           <h1 className="text-2xl font-bold mb-6 text-gray-800 flex items-center">
-            <FaUsers className="mr-3 text-purple-500" /> Your Collaborations
+            <FaUsers className="mr-3 text-teal-500" /> Your Collaborations
           </h1>
           <div className="flex flex-col gap-2">
             {collaborationWorkSpaces.map((workspace) => (
-              <div key={workspace._id} className="bg-white border rounded-lg overflow-hidden">
+              <div
+                key={workspace._id}
+                className="bg-white border rounded-lg overflow-hidden"
+              >
                 <div className="p-6 flex justify-between items-center">
                   <div>
                     <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -215,8 +217,8 @@ function Dashboard() {
                     </h2>
                     <div className="flex flex-col text-gray-700 mb-4">
                       <div className="flex items-center">
-                        <FaUsers className="mr-2 text-purple-500" />
-                        <span>{workspace.members.length} members</span>
+                        <FaUsers className="mr-2 text-teal-500" />
+                        <span>{workspace.members.length+1} members</span>
                       </div>
                       <div className="flex items-center">
                         <FaTasks className="mr-2 text-green-500" />
@@ -226,7 +228,7 @@ function Dashboard() {
                   </div>
                   <Link
                     href={`/dashboard/workspace/${workspace._id}`}
-                    className="inline-flex items-center px-4 py-2 bg-purple-600 text-white font-semibold rounded-md hover:bg-purple-700 transition-colors duration-200"
+                    className="inline-flex items-center px-4 py-2 bg-teal-600 text-white font-semibold rounded-md hover:bg-teal-700 transition-colors duration-200"
                   >
                     Open
                     <FaExternalLinkAlt className="ml-2" />
