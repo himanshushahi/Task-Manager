@@ -61,6 +61,10 @@ export type Action =
       payload: Column;
     }
   | {
+      type: "UPDATE_COLUMN_TITLE";
+      payload: { id: string; title: string };
+    }
+  | {
       type: "DELETE_COLUMN";
       payload: { id: string };
     }
@@ -135,6 +139,18 @@ export const reducer = (state: State, action: Action): State => {
         ...state,
         activeWorkSpaceColumn: [...state.activeWorkSpaceColumn, action.payload],
       };
+    case "UPDATE_COLUMN_TITLE": {
+      return {
+        ...state,
+        activeWorkSpaceColumn: state.activeWorkSpaceColumn.map((column) => {
+          if (column._id === action.payload.id) {
+            return { ...column, title: action.payload.title };
+          } else {
+            return column;
+          }
+        }),
+      };
+    }
     case "DELETE_COLUMN":
       return {
         ...state,

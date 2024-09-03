@@ -12,7 +12,7 @@ import {
   Draggable,
   DropResult,
 } from "react-beautiful-dnd";
-import { FaEdit, FaEllipsisV, FaPlus, FaTrash } from "react-icons/fa";
+import { FaEdit, FaEllipsisV, FaPlus, FaSave, FaTrash } from "react-icons/fa";
 import { MdCancel } from "react-icons/md";
 import { BiTrashAlt } from "react-icons/bi";
 import toast from "react-hot-toast";
@@ -32,6 +32,7 @@ import WorkSpaceSkeleton from "../../../components/WorkSpaceSkeleton";
 import { Editor } from "@tiptap/react";
 import RichTextEditor from "../../../components/RichTextEditor";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface paramsType {
   params: {
@@ -50,7 +51,7 @@ const WorkSpace = ({ params }: paramsType) => {
   const workSpaceId = params.id;
   const router = useRouter();
   const [isPageLoading, setIsPageLoading] = useState<boolean>(true);
-  const { user, activeWorkSpaceColumn: columns } = useGlobalState();
+  const { user, activeWorkSpaceColumn: columns, workSpaces } = useGlobalState();
   const dispach = useGlobalDispatch();
   const [text, setText] = useState<textType>({});
   const [addMode, setAddMode] = useState<string>("");
@@ -349,10 +350,54 @@ const WorkSpace = ({ params }: paramsType) => {
   //   handleHighlight()
   // },[])
 
+  const handleClose = (columnId: string) => {
+    setAddMode("");
+    setEditMode({ columnId: null, taskId: null });
+    setText((prev) => ({
+      ...prev,
+      [columnId]: "",
+    }));
+    editorRefs.current[columnId]?.commands.clearContent();
+  };
+
   const [menuOpen, setMenuOpen] = useState<string>("0");
-  const menuRef = useRef<HTMLDivElement | null>(null);
 
   const editorRefs: MutableRefObject<EditorRefs> = useRef({});
+  const [columnUpdating, setColumUpdating] = useState<string>("0");
+
+  const handleUpdateColumnTitle = async (
+    columnTitle: string,
+    columnId: string,
+    oldColumnTitle: string
+  ) => {
+    if (columnTitle === oldColumnTitle) return;
+    try {
+      setColumUpdating(columnId);
+      const res = await fetch(`/api/column/${columnId}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workSpaceId, columnTitle }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        toast.success(data.message);
+        dispach({
+          type: "UPDATE_COLUMN_TITLE",
+          payload: { id: columnId, title: columnTitle },
+        });
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message);
+    } finally {
+      setColumUpdating("0");
+    }
+  };
 
   if (isPageLoading) {
     return <WorkSpaceSkeleton />;
@@ -382,7 +427,22 @@ const WorkSpace = ({ params }: paramsType) => {
             >
               <div className="bg-gradient-to-r from-teal-500 to-indigo-500 rounded-lg shadow-lg overflow-hidden">
                 <div className="flex justify-between bg-opacity-75 bg-teal-700 text-white p-4 rounded-t-lg">
-                  <h2 className="text-lg font-semibold">{column.title}</h2>
+                  <h2
+                    className="text-lg font-semibold select-none  "
+                    aria-disabled={column._id === columnUpdating}
+                    onBlur={(e) => {
+                      handleUpdateColumnTitle(
+                        e.target.innerText,
+                        column._id,
+                        column.title
+                      );
+                    }}
+                    onDoubleClick={(e) =>
+                      (e.currentTarget.contentEditable = "true")
+                    }
+                  >
+                    {column.title}
+                  </h2>
                   <button
                     onClick={() => {
                       setConfirmation({
@@ -425,7 +485,7 @@ const WorkSpace = ({ params }: paramsType) => {
                                 className="w-full"
                               ></span>
 
-                              <div ref={menuRef} className="relative">
+                              <div className="relative">
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -503,10 +563,14 @@ const WorkSpace = ({ params }: paramsType) => {
                           editMode.columnId === column._id
                             ? "opacity-100 pointer-events-auto"
                             : "opacity-0 pointer-events-none"
-                        } fixed inset-0 z-30 flex items-center justify-center transition-opacity duration-300 bg-black bg-opacity-50`}
+                        }  fixed inset-0 z-30 flex items-center justify-center transition-opacity duration-3000`}
                       >
                         <div
-                          className={`bg-white w-full lg:w-1/2 md:w-1/2 py-6 px-8 rounded-lg shadow-lg transform transition-transform duration-300 ${
+                          className="absolute inset-0 bg-black bg-opacity-50"
+                          onClick={() => handleClose(column._id)}
+                        />
+                        <div
+                          className={`relative bg-white lg:max-w-2xl md:w-[70%] w-[95%] mx-2 lg:p-6 md:p-4 p-2 rounded-lg shadow-xl transform transition-all duration-300 ${
                             addMode === column._id ||
                             editMode.columnId === column._id
                               ? "scale-100"
@@ -527,17 +591,7 @@ const WorkSpace = ({ params }: paramsType) => {
                           <div className="flex justify-end gap-4 mt-6">
                             <button
                               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg shadow hover:bg-red-600 transition-colors"
-                              onClick={() => {
-                                setAddMode("");
-                                setEditMode({ columnId: null, taskId: null });
-                                setText((prev) => ({
-                                  ...prev,
-                                  [column._id]: "",
-                                }));
-                                editorRefs.current[
-                                  column._id
-                                ]?.commands.clearContent();
-                              }}
+                              onClick={() => handleClose(column._id)}
                             >
                               <MdCancel className="text-lg" /> Cancel
                             </button>
@@ -577,7 +631,7 @@ const WorkSpace = ({ params }: paramsType) => {
                                   <Spinner />
                                 ) : (
                                   <>
-                                    <FaPlus className="text-lg" /> Update
+                                    <FaSave className="text-lg" /> Update
                                   </>
                                 )}
                               </button>

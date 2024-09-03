@@ -24,9 +24,7 @@ export async function GET(
       _id: params.id,
     }).select("name");
 
-    const columns = await Column.find({
-      workSpace: params.id,
-    });
+    const columns = await Column.find({ workSpace: params.id });
 
     return NextResponse.json({
       success: true,

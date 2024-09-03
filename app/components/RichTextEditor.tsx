@@ -95,7 +95,7 @@ const RichTextEditor = forwardRef<Editor | null, RichTextEditorProps>(
     }
 
     return (
-      <div className="border rounded-lg p-6 w-full max-w-2xl mx-auto bg-white">
+      <div className="border rounded-lg p-2 w-full max-w-2xl mx-auto bg-white">
         <div className="flex flex-wrap justify-center gap-3 mb-4 border p-3 bg-gray-50 rounded-lg">
           <button
             onClick={() =>
