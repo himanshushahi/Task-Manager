@@ -35,7 +35,7 @@ const RegisterPage = () => {
     "password"
   );
   const [otp, setOtp] = useState("");
-  const [step, setStep] = useState(2);
+  const [step, setStep] = useState(1);
   const [storedEmail, setStoredEmail] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [otpLoading, setOtpLoading] = useState<boolean>(false);
@@ -225,7 +225,7 @@ const RegisterPage = () => {
                   value={user.email}
                   onChange={handleChange}
                   disabled={step === 2 || step === 3}
-                  className="appearance-none w-full sm:flex-1 rounded-b px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-teal-600 focus:border-teal-600 text-sm"
+                  className="appearance-none w-full sm:flex-1 rounded-bl px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-teal-600 focus:border-teal-600 text-sm"
                   placeholder="Email address"
                 />
                 {step === 1 && (
